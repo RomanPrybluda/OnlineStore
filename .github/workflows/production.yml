@@ -1,0 +1,59 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish project
+        run: dotnet publish --configuration Release --output publish
+
+      - name: Create appsettings.Production.json
+        run: |
+          echo '{
+            "ConnectionStrings": {
+              "DefaultConnection": "${{ secrets.PRODUCTION_CONNECTION_STRING }}"
+            },
+            "Logging": {
+              "LogLevel": {
+                "Default": "Information",
+                "Microsoft": "Warning"
+              }
+            },
+            "Swagger": {
+              "Enable": false
+            }
+          }' > publish/appsettings.Production.json
+
+      - name: Set environment variable for EF Core
+        run: echo "ASPNETCORE_ENVIRONMENT=Production" >> $GITHUB_ENV
+
+      - name: Apply database migrations
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.PRODUCTION_CONNECTION_STRING }}
+        run: dotnet ef database update --project OnlineStore.WebAPI --configuration Release
+
+      - name: Deploy using WebDeploy
+        run: |
+          msdeploy.exe -verb:sync -source:contentPath="publish" `
+          -dest:auto,computerName="https://monsterasp.com/msdeploy.axd?site=OnlineStoreProd", `
+          userName="${{ secrets.MSDEPLOY_PRODSERVER_USERNAME }}",password="${{ secrets.MSDEPLOY_PRODSERVER_PASSWORD }}"
