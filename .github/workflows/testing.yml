@@ -1,6 +1,3 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
 name: Deploy to Testing
 
 on:
@@ -47,6 +44,12 @@ jobs:
             }
           }' > publish/appsettings.Testing.json
 
+      - name: Deploy using WebDeploy
+        run: |
+          msdeploy.exe -verb:sync -source:contentPath="publish" `
+          -dest:auto,computerName="https://monsterasp.com/msdeploy.axd?site=OnlineStoreTest", `
+          userName="${{ secrets.MSDEPLOY_TESTSERVER_USERNAME }}",password="${{ secrets.MSDEPLOY_TESTSERVER_PASSWORD }}"
+
       - name: Set environment variable for EF Core
         run: echo "ASPNETCORE_ENVIRONMENT=Testing" >> $GITHUB_ENV
 
@@ -54,9 +57,3 @@ jobs:
         env:
           ConnectionStrings__DefaultConnection: ${{ secrets.TESTING_CONNECTION_STRING }}
         run: dotnet ef database update --project OnlineStore.WebAPI --configuration Release
-
-      - name: Deploy using WebDeploy
-        run: |
-          msdeploy.exe -verb:sync -source:contentPath="publish" `
-          -dest:auto,computerName="https://monsterasp.com/msdeploy.axd?site=OnlineStoreTest", `
-          userName="${{ secrets.MSDEPLOY_TESTSERVER_USERNAME }}",password="${{ secrets.MSDEPLOY_TESTSERVER_PASSWORD }}"
