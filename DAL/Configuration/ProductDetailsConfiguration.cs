@@ -7,11 +7,17 @@ namespace DAL
     {
         public void Configure(EntityTypeBuilder<ProductDetails> builder)
         {
-            builder.HasKey(pd => pd.Id);
-
             builder.HasOne(pd => pd.Product)
                 .WithOne(p => p.ProductDetails)
-                .HasForeignKey<ProductDetails>(pd => pd.ProductId);
+                .HasForeignKey<ProductDetails>(pd => pd.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(pd => pd.Sku)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            builder.Property(pd => pd.StockQuantity)
+                .IsRequired();
         }
     }
 }

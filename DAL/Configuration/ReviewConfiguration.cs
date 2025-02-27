@@ -7,22 +7,23 @@ namespace DAL
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {
-            builder.HasKey(r => r.Id);
-
-            builder.Property(r => r.Comment)
-                .IsRequired()
-                .HasMaxLength(1000);
-
-            builder.Property(r => r.Rating)
-                .IsRequired();
-
             builder.HasOne(r => r.Product)
                 .WithMany(p => p.Reviews)
-                .HasForeignKey(r => r.ProductId);
+                .HasForeignKey(r => r.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(r => r.AppUser)
                 .WithMany(u => u.Reviews)
-                .HasForeignKey(r => r.UserId);
+                .HasForeignKey(r => r.UserId)
+                .HasPrincipalKey(u => u.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(r => r.Rating)
+                .IsRequired()
+                .HasDefaultValue(1);
+
+            builder.Property(r => r.Comment)
+                .HasMaxLength(500);
         }
     }
 }

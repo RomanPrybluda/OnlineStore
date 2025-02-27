@@ -25,6 +25,16 @@ namespace DAL
             builder
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            builder.HasMany(u => u.Reviews)
+                .WithOne(r => r.AppUser)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(u => u.Orders)
+                .WithOne()
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

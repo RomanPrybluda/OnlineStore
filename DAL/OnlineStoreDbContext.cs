@@ -1,5 +1,4 @@
-﻿using dotenv.net;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,15 +10,6 @@ namespace DAL
         public OnlineStoreDbContext(DbContextOptions options) : base(options)
         {
             this.ChangeTracker.LazyLoadingEnabled = false;
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                DotEnv.Load();
-                optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("DATABASE_URL"));
-            }
         }
 
         public DbSet<AppUser> AppUsers { get; set; }
