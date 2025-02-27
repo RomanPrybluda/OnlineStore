@@ -22,7 +22,7 @@ jobs:
         run: dotnet restore
 
       - name: Build and publish project
-        run: dotnet publish -c Release -o publish
+        run: dotnet publish src/OnlineStore/OnlineStore.csproj -c Release -o publish
 
       - name: Create app_offline.htm before deploy
         run: echo "Maintenance Mode" > publish/app_offline.htm
@@ -30,7 +30,7 @@ jobs:
       - name: Deploy to MonsterASP via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp.monsterasp.net  
+          server: site18904.siteasp.net
           username: ${{ secrets.FTP_LOGIN_TEST_SERVER }}
           password: ${{ secrets.FTP_PASSWORD_TEST_SERVER }}
           local-dir: ./publish/
@@ -39,4 +39,4 @@ jobs:
       - name: Remove app_offline.htm after deploy
         run: |
           echo "Removing maintenance mode file..."
-          curl -u ${{ secrets.FTP_LOGIN_TEST_SERVER }}:${{ secrets.FTP_PASSWORD_TEST_SERVER }} ftp://ftp.monsterasp.net/wwwroot/app_offline.htm -Q "-DELE wwwroot/app_offline.htm"
+          curl -u site18904:3Yz#Ed+8a!2J ftp://site18904.siteasp.net/wwwroot/app_offline.htm -Q "-DELE wwwroot/app_offline.htm"
