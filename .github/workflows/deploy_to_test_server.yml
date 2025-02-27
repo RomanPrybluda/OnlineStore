@@ -28,7 +28,7 @@ jobs:
         run: echo "Maintenance Mode" > publish/app_offline.htm
 
       - name: Deploy to MonsterASP via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftp.monsterasp.net  
           username: ${{ secrets.FTP_LOGIN_TEST_SERVER }}
