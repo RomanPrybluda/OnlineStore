@@ -3,7 +3,7 @@ name: Deploy to Test Server via FTP
 on:
   push:
     branches:
-      - dev 
+      - dev
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'  
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -34,7 +34,9 @@ jobs:
           username: ${{ secrets.FTP_LOGIN_TEST_SERVER }}
           password: ${{ secrets.FTP_PASSWORD_TEST_SERVER }}
           local-dir: ./publish/
-          server-dir: /wwwroot/  
+          server-dir: /wwwroot/
 
       - name: Remove app_offline.htm after deploy
-        run: rm -f publish/app_offline.htm
+        run: |
+          echo "Removing maintenance mode file..."
+          curl -u ${{ secrets.FTP_LOGIN_TEST_SERVER }}:${{ secrets.FTP_PASSWORD_TEST_SERVER }} ftp://ftp.monsterasp.net/wwwroot/app_offline.htm -Q "-DELE wwwroot/app_offline.htm"
