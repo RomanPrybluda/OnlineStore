@@ -1,0 +1,40 @@
+name: Deploy to Test Server via FTP
+
+on:
+  push:
+    branches:
+      - dev 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build and publish project
+        run: dotnet publish -c Release -o publish
+
+      - name: Create app_offline.htm before deploy
+        run: echo "Maintenance Mode" > publish/app_offline.htm
+
+      - name: Deploy to MonsterASP via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ftp.monsterasp.net  
+          username: ${{ secrets.FTP_LOGIN_TEST_SERVER` }}
+          password: ${{ secrets.FTP_PASSWORD_TEST_SERVER` }}
+          local-dir: ./publish/
+          server-dir: /wwwroot/  
+
+      - name: Remove app_offline.htm after deploy
+        run: rm -f publish/app_offline.htm
