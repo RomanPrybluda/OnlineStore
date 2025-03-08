@@ -7,6 +7,14 @@ namespace DAL
     {
         public void Configure(EntityTypeBuilder<OrderItem> builder)
         {
+
+            builder
+               .HasKey(oi => oi.Id);
+
+            builder
+                .Property(oi => oi.Id)
+                .HasDefaultValueSql("NEWID()");
+
             builder.HasOne(oi => oi.Product)
                 .WithMany()
                 .HasForeignKey(oi => oi.ProductId)

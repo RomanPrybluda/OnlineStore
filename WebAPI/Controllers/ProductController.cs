@@ -21,15 +21,23 @@ namespace WebAPI
         [HttpGet]
         public async Task<ActionResult> GetAllProductsAsyncAsync()
         {
-            var Products = await _productService.GetProductsListAsync();
-            return Ok(Products);
+            var products = await _productService.GetProductsListAsync();
+            return Ok(products);
         }
 
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult> GetProductByIdAsyncAsync([Required] Guid id)
         {
-            var Product = await _productService.GetProductByIdAsync(id);
-            return Ok(Product);
+            var product = await _productService.GetProductByIdAsync(id);
+            return Ok(product);
+        }
+
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public async Task<ActionResult> DeleteShipAsync([Required] Guid id)
+        {
+            await _productService.DeleteProductAsync(id);
+            return NoContent();
         }
 
         [HttpDelete]

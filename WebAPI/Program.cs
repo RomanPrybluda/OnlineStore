@@ -6,43 +6,56 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration["ConnectionStrings:LocalConnectionString"];
+Console.WriteLine($"ConnectionString: {connectionString}");
+
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Configuration["ConnectionStrings:Default"] = connectionString;
+}
+
+builder.Services.AddScoped<ProductService>();
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-// Add services to the container.
-
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddHttpClient();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddControllers();
-builder.Services.AddScoped<ProductService>();
-
 
 builder.Services.AddIdentityCore<AppUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<OnlineStoreDbContext>();
 
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"),
+    options.UseSqlServer(connectionString,
         b => b.MigrationsAssembly("DAL"));
 });
 
-
 builder.Logging.AddConsole();
-
-
-
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
+    context.Database.Migrate();
+
+    var categoryInitializer = new CategoryInitializer(context);
+    categoryInitializer.InitializeCategories();
+
+    var productInitializer = new ProductInitializer(context);
+    productInitializer.InitializeProducts();
+
 }
 
-// Configure the HTTP request pipeline.
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
+app.UseSwaggerUI();
+//}
 
 app.UseAuthorization();
 
