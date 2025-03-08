@@ -44,6 +44,18 @@ namespace Domain
             return productDTO;
         }
 
+        public async Task DeleteProductAsync(Guid id)
+        {
+            var ship = await _context.Products.FindAsync(id);
+
+            if (ship is null)
+                throw new CustomException(CustomExceptionType.NotFound, $"No shipById with {id} id");
+
+            _context.Products.Remove(ship);
+            await _context.SaveChangesAsync();
+        }
+
+
 
     }
 }
