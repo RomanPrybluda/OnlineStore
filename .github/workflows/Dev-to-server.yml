@@ -19,7 +19,18 @@ jobs:
           dotnet-version: 8.0
           
       - name: Install dependencies
-        run: dotnet restore   
+        run: dotnet restore
+      
+      - name: Replace connection string in appsettings.json
+        run: |
+          $appSettingsPath = "OnlineStore/WebAPI/appsettings.json"
+          if (Test-Path $appSettingsPath) {
+            (Get-Content $appSettingsPath) -replace '"Default": "ADD_FROM_SECRETS"', '"Default": "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"' | Set-Content $appSettingsPath
+            Write-Host "Updated appsettings.json at: $appSettingsPath"
+          } else {
+            Write-Host "appsettings.json not found at $appSettingsPath!"
+            exit 1
+          }
         
       - name: Build
         run: dotnet build --configuration Release --no-restore
@@ -33,7 +44,7 @@ jobs:
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
-          website-name: site19760
-          server-computer-name: https://site19760.siteasp.net:8172
-          server-username: site19760
-          server-password: Ko5-f3%X_Z8p
+          website-name: ${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}
+          server-password: ${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}
