@@ -1,6 +1,5 @@
 using DAL;
 using Domain;
-using Domain.Seeds;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
