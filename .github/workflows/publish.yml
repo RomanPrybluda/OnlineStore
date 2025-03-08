@@ -27,7 +27,7 @@ jobs:
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
-          website-name: ${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}
-          server-computer-name: ${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}
-          server-username: ${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}
-          server-password: ${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}
+          website-name: ${{ secrets.WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.COMPUTER_NAME }}
+          server-username: ${{ secrets.SERVER_USERNAME }}
+          server-password: ${{ secrets.SERVER_PASSWORD }}
