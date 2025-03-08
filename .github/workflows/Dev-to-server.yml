@@ -45,7 +45,8 @@ jobs:
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
-          website-name: ${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}
-          server-computer-name: ${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}
-          server-username: ${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}
-          server-password: ${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}
+          website-name: ${{ secrets.SWEETCRAFT_TS_WEBSITE_NAME }}
+          server-computer-name: "https://${{ secrets.SWEETCRAFT_TS_SERVER_COMPUTER_NAME }}:8172/MsDeploy.axd?site=${{ secrets.SWEETCRAFT_TS_WEBSITE_NAME }}"
+          server-username: ${{ secrets.SWEETCRAFT_TS_SERVER_USERNAME }}
+          server-password: ${{ secrets.SWEETCRAFT_TS_SERVER_PASSWORD }}
+          auth-type: "Basic"
