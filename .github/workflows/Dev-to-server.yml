@@ -18,22 +18,23 @@ jobs:
         with:
           dotnet-version: 8.0
           
-      - name: Install dependencies
-        run: dotnet restore
-      
-      -  name: Replace connection string in appsettings.json
-         env:
-           CONNECTION_STRING: ${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}
-         run: |
-           appSettingsPath="WebAPI/appsettings.json"
-           if [ -f "$appSettingsPath" ]; then
-             jq --arg connString "$CONNECTION_STRING" '.ConnectionStrings.Default = $connString' "$appSettingsPath" > tmp.json && mv tmp.json "$appSettingsPath"
-             echo "Updated appsettings.json at: $appSettingsPath"
-           else
-             echo "appsettings.json not found at $appSettingsPath!"
-             exit 1
-           fi
-         shell: bash
+      - name: Replace connection string in appsettings.json
+        run: |
+          $connectionString = "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"
+          if ($connectionString -eq "") {
+            Write-Host "Error: Connection string is empty!"
+            exit 1
+          }
+
+          $appSettingsPath = "WebAPI/appsettings.json"
+          if (Test-Path $appSettingsPath) {
+            # Заменяем строку в JSON
+            (Get-Content $appSettingsPath) -replace '"Default": "ADD_FROM_SECRETS"', '"Default": "' + $connectionString + '"' | Set-Content $appSettingsPath
+            Write-Host "Updated appsettings.json at: $appSettingsPath"
+          } else {
+            Write-Host "appsettings.json not found at $appSettingsPath!"
+            exit 1
+          }
         
       - name: Build
         run: dotnet build --configuration Release --no-restore
