@@ -1,6 +1,6 @@
 ﻿using DAL;
 
-namespace Domain.Seeds
+namespace Domain
 {
     public class CategoryInitializer
     {
@@ -13,26 +13,18 @@ namespace Domain.Seeds
 
         public void InitializeCategories()
         {
-
-            var existingCategoryCount = _context.Categories.Count();
-
-            if (existingCategoryCount < 5)
+            if (!_context.Categories.Any())
             {
-
                 var categories = new List<Category>
                 {
-                    new Category { Name = "Chocolate Products" },
-                    new Category { Name = "Caramel" },
-                    new Category { Name = "Cookies and Biscuits" },
-                    new Category { Name = "Chewing Candies" },
-                    new Category { Name = "Jelly and Marmalade" }
+                    new Category { Id = Guid.NewGuid(), Name = "Candies" },
+                    new Category { Id = Guid.NewGuid(), Name = "Chocolates" },
+                    new Category { Id = Guid.NewGuid(), Name = "Cakes" },
+                    new Category { Id = Guid.NewGuid(), Name = "Cookies" },
+                    new Category { Id = Guid.NewGuid(), Name = "Pastries" },
                 };
 
-                foreach (var category in categories)
-                {
-                    _context.Categories.Add(category);
-                }
-
+                _context.Categories.AddRange(categories);
                 _context.SaveChanges();
             }
         }

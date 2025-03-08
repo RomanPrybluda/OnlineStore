@@ -22,8 +22,9 @@ namespace Domain
             {
                 for (int i = 0; i < (needsProductsQuantity - existingProductCount); i++)
                 {
-                    var categoryId = _random.Next(1, _context.Categories.Count() + 1);
-                    var category = _context.Categories.FirstOrDefault(c => c.Id == categoryId);
+
+                    var category = _context.Categories.OrderBy(c => Guid.NewGuid()).FirstOrDefault();
+                    if (category == null) continue;
 
                     var productName = $"Product {i + 1}";
                     var productDescription = $"Description for Product {i + 1}";
@@ -32,16 +33,14 @@ namespace Domain
 
                     var product = new Product
                     {
+                        Id = Guid.NewGuid(),
                         Name = productName,
                         Description = productDescription,
                         Price = productPrice,
                         ImageUrl = imageUrl,
-                        CategoryId = categoryId,
+                        CategoryId = category.Id,
                         Category = category,
                     };
-
-                    _context.Products.Add(product);
-                    _context.SaveChanges();
 
                     var productDetails = new ProductDetails
                     {
@@ -51,12 +50,12 @@ namespace Domain
                         StockQuantity = _random.Next(1, 100)
                     };
 
+                    _context.Products.Add(product);
                     _context.ProductDetails.Add(productDetails);
-
-                    _context.SaveChanges();
                 }
+
+                _context.SaveChanges();
             }
         }
     }
 }
-

@@ -2,9 +2,9 @@
 {
     public class Review
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
 
         public Product Product { get; set; } = null!;
 
