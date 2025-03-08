@@ -1,0 +1,48 @@
+name: Deploy from dev to TEST server
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0
+          
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Replace connection string in appsettings.json
+        run: |
+          if (Test-Path "appsettings.json") {
+            (Get-Content appsettings.json) -replace '"Default": "ADD_FROM_SECRETS"', '"Default": "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"' | Set-Content appsettings.json
+          } else {
+            Write-Host "appsettings.json not found!"
+            exit 1
+          }
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
+
+      - name: Test with .NET
+        run: dotnet test
+
+      - name: Deploy to MonsterASP.NET via WebDeploy
+        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        with:
+          website-name: ${{ secrets.SWEETCRAFT_TS_WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.SWEETCRAFT_TS_SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.SWEETCRAFT_TS_SERVER_USERNAME }}
+          server-password: ${{ secrets.SWEETCRAFT_TS_SERVER_PASSWORD }}
