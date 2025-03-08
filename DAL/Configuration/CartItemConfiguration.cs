@@ -7,6 +7,13 @@ namespace DAL
     {
         public void Configure(EntityTypeBuilder<CartItem> builder)
         {
+            builder
+                .HasKey(ci => ci.Id);
+
+            builder
+                .Property(ci => ci.Id)
+                .HasDefaultValueSql("NEWID()");
+
             builder.HasOne(ci => ci.Product)
                 .WithMany()
                 .HasForeignKey(ci => ci.ProductId)
