@@ -21,11 +21,7 @@ jobs:
           
       - name: Install dependencies
         run: dotnet restore
-
-      - name: Replace connection string in appsettings.json
-        run: |
-          (Get-Content appsettings.json) -replace '"DefaultConnection": ""', '"DefaultConnection": "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"' | Set-Content appsettings.json
-        
+      
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
