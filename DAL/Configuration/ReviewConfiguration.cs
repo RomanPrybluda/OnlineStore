@@ -7,6 +7,15 @@ namespace DAL
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {
+
+            builder
+                 .HasKey(r => r.Id);
+
+            builder
+                .Property(r => r.Id)
+                .HasDefaultValueSql("NEWID()");
+
+
             builder.HasOne(r => r.Product)
                 .WithMany(p => p.Reviews)
                 .HasForeignKey(r => r.ProductId)

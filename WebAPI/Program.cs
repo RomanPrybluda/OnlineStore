@@ -1,4 +1,5 @@
 using DAL;
+using Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -12,6 +13,8 @@ if (!string.IsNullOrEmpty(connectionString))
 {
     builder.Configuration["ConnectionStrings:Default"] = connectionString;
 }
+
+builder.Services.AddScoped<ProductService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -39,6 +42,12 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
     context.Database.Migrate();
+
+    var categoryInitializer = new CategoryInitializer(context);
+    categoryInitializer.InitializeCategories();
+
+    var productInitializer = new ProductInitializer(context);
+    productInitializer.InitializeProducts();
 
 }
 
