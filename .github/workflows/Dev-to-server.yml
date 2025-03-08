@@ -23,7 +23,7 @@ jobs:
       
       - name: Replace connection string in appsettings.json
         run: |
-          $appSettingsPath = "./OnlineStore/WebAPI/appsettings.json"
+          $appSettingsPath = "WebAPI/appsettings.json"
           if (Test-Path $appSettingsPath) {
             (Get-Content $appSettingsPath) -replace '"Default": "ADD_FROM_SECRETS"', '"Default": "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"' | Set-Content $appSettingsPath
             Write-Host "Updated appsettings.json at: $appSettingsPath"
