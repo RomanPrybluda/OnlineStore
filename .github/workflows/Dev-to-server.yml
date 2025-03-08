@@ -24,13 +24,17 @@ jobs:
       - name: Replace connection string in appsettings.json
         run: |
           $appSettingsPath = "WebAPI/appsettings.json"
+          $connectionString = "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"
+          
           if (Test-Path $appSettingsPath) {
-            (Get-Content $appSettingsPath) -replace '"Default": "ADD_FROM_SECRETS"', '"Default": "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"' | Set-Content $appSettingsPath
-            Write-Host "Updated appsettings.json at: $appSettingsPath"
+              (Get-Content $appSettingsPath) -replace '"Default": ".*?"', '"Default": "' + $connectionString + '"'
+              | Set-Content $appSettingsPath
+              Write-Host "Updated appsettings.json at: $appSettingsPath"
           } else {
-            Write-Host "appsettings.json not found at $appSettingsPath!"
-            exit 1
+              Write-Host "appsettings.json not found at $appSettingsPath!"
+              exit 1
           }
+
         
       - name: Build
         run: dotnet build --configuration Release --no-restore
