@@ -26,7 +26,7 @@ jobs:
         run: |
           $appSettingsPath = Get-ChildItem -Path . -Recurse -Filter "appsettings.json" | Select-Object -First 1 -ExpandProperty FullName
           if ($appSettingsPath) {
-            (Get-Content $appSettingsPath) -replace '"Default": "ADD_FROM_SECRETS"', '"Default": "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"' | Set-Content $appSettingsPath
+            (Get-Content $appSettingsPath) -replace '"Default": "ADD_FROM_SECRETS"', '"Default": "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"' | Set-Content $appSettingsPath
             Write-Host "Updated appsettings.json at: $appSettingsPath"
           } else {
             Write-Host "appsettings.json not found!"
@@ -45,7 +45,7 @@ jobs:
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
-          website-name: ${{ secrets.SWEETCRAFT_WEBSITE_NAME }}
-          server-computer-name: ${{ secrets.SWEETCRAFT_TS_SERVER_COMPUTER_NAME }}
-          server-username: ${{ secrets.SWEETCRAFT_TS_SERVER_USERNAME }}
-          server-password: ${{ secrets.SWEETCRAFT_TS_SERVER_PASSWORD }}
+          website-name: ${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}
+          server-password: ${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}
