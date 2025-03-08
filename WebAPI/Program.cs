@@ -5,6 +5,13 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration["ConnectionStrings:LocalConnectionString"];
+Console.WriteLine($"ConnectionString: {connectionString}");
+
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Configuration["ConnectionStrings:Default"] = connectionString;
+}
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -20,16 +27,11 @@ builder.Services.AddIdentityCore<AppUser>().AddRoles<IdentityRole>().AddEntityFr
 
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"),
+    options.UseSqlServer(connectionString,
         b => b.MigrationsAssembly("DAL"));
 });
 
-
 builder.Logging.AddConsole();
-
-
-
-
 
 var app = builder.Build();
 
