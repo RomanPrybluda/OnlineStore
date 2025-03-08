@@ -27,7 +27,7 @@ jobs:
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
-          website-name: ${{ secrets.WEBSITE_NAME }}
-          server-computer-name: ${{ secrets.COMPUTER_NAME }}
-          server-username: ${{ secrets.SERVER_USERNAME }}
-          server-password: ${{ secrets.SERVER_PASSWORD }}
+          website-name: site19437
+          server-computer-name: https://site19437.siteasp.net:8172
+          server-username: site19437
+          server-password: j#7K+5Yn8r=L
