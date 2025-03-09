@@ -1,14 +1,12 @@
 name: Prod to server
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
     types:
       - closed
+  workflow_dispatch:
 
 jobs:
   build_and_deploy:
@@ -37,8 +35,8 @@ jobs:
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
-          website-name: site19760
-          server-computer-name: https://site19760.siteasp.net:8172
-          server-username: site19760
-          server-password: Xe5_3-rTx2G#
+          website-name: site19397
+          server-computer-name: https://site19397.siteasp.net:8172
+          server-username: site19397
+          server-password: 5k-SZ#9t@8fX
 
