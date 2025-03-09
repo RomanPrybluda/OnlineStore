@@ -6,15 +6,22 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration["ConnectionStrings:LocalConnectionString"];
-Console.WriteLine($"ConnectionString: {connectionString}");
+var connectionString = builder.Configuration.GetConnectionString("Default");
 
-if (!string.IsNullOrEmpty(connectionString))
+var localConnectionString = builder.Configuration["ConnectionStrings:LocalConnectionString"];
+
+if (!string.IsNullOrWhiteSpace(localConnectionString))
 {
-    builder.Configuration["ConnectionStrings:Default"] = connectionString;
+    connectionString = localConnectionString;
+}
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Connection string is not set. Check environment variables, appsettings.json, or secrets.");
 }
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CategoryService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -30,8 +37,7 @@ builder.Services.AddIdentityCore<AppUser>().AddRoles<IdentityRole>().AddEntityFr
 
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 {
-    options.UseSqlServer(connectionString,
-        b => b.MigrationsAssembly("DAL"));
+    options.UseSqlServer(connectionString, b => b.MigrationsAssembly("DAL"));
 });
 
 builder.Logging.AddConsole();
