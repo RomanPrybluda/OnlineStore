@@ -19,23 +19,33 @@ jobs:
           dotnet-version: 8.0
           
       - name: Replace connection string in appsettings.json
+        shell: pwsh
         run: |
           $connectionString = "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"
-          if ($connectionString -eq "") {
+          if ([string]::IsNullOrWhiteSpace($connectionString)) {
             Write-Host "Error: Connection string is empty!"
             exit 1
           }
 
           $appSettingsPath = "WebAPI/appsettings.json"
           if (Test-Path $appSettingsPath) {
-            # Заменяем строку в JSON
-            (Get-Content $appSettingsPath) -replace '"Default": "ADD_FROM_SECRETS"', '"Default": "' + $connectionString + '"' | Set-Content $appSettingsPath
+            $json = Get-Content $appSettingsPath | ConvertFrom-Json
+            $oldConnectionString = $json.ConnectionStrings.Default
+            $json.ConnectionStrings.Default = $connectionString
+            $json | ConvertTo-Json -Depth 3 | Set-Content $appSettingsPath
             Write-Host "Updated appsettings.json at: $appSettingsPath"
+
+            if ($oldConnectionString -eq $connectionString) {
+              Write-Host "No changes detected in the connection string. Skipping deployment."
+              exit 0
+            } else {
+              Write-Host "Connection string updated. Proceeding with deployment."
+            }
           } else {
             Write-Host "appsettings.json not found at $appSettingsPath!"
             exit 1
           }
-        
+
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
