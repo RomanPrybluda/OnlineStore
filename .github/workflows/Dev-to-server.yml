@@ -23,26 +23,28 @@ jobs:
         run: |
           $connectionString = "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"
           if ([string]::IsNullOrWhiteSpace($connectionString)) {
-            Write-Host "Error: Connection string is empty!"
+            Write-Host "::error::Connection string is EMPTY! Check GitHub Secrets."
             exit 1
           }
 
+          Write-Host "🔍 Connection string length: $($connectionString.Length) characters"
+          
           $appSettingsPath = "WebAPI/appsettings.json"
           if (Test-Path $appSettingsPath) {
-            $json = Get-Content $appSettingsPath | ConvertFrom-Json
-            $oldConnectionString = $json.ConnectionStrings.Default
-            $json.ConnectionStrings.Default = $connectionString
-            $json | ConvertTo-Json -Depth 3 | Set-Content $appSettingsPath
-            Write-Host "Updated appsettings.json at: $appSettingsPath"
+            $json = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
+            $json.ConnectionStrings.Default = $connectionString.Trim()
+            $json | ConvertTo-Json -Depth 3 | Set-Content -Encoding UTF8 $appSettingsPath
 
-            if ($oldConnectionString -eq $connectionString) {
-              Write-Host "No changes detected in the connection string. Skipping deployment."
-              exit 0
+            # Проверка после изменения
+            $updatedJson = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
+            if ([string]::IsNullOrWhiteSpace($updatedJson.ConnectionStrings.Default)) {
+              Write-Host "::error::Connection string was not updated correctly!"
+              exit 1
             } else {
-              Write-Host "Connection string updated. Proceeding with deployment."
+              Write-Host "✅ Connection string successfully updated in appsettings.json"
             }
           } else {
-            Write-Host "appsettings.json not found at $appSettingsPath!"
+            Write-Host "::error::appsettings.json not found at $appSettingsPath!"
             exit 1
           }
 
