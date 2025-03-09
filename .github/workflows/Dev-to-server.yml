@@ -32,7 +32,7 @@ jobs:
           $appSettingsPath = "WebAPI/appsettings.json"
           if (Test-Path $appSettingsPath) {
             $json = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
-            $json.ConnectionStrings.Default = $connectionString.Trim()
+            $json.ConnectionStrings.Default = $connectionString
             $json | ConvertTo-Json -Depth 3 | Set-Content -Encoding UTF8 $appSettingsPath
 
             # Проверка после изменения
