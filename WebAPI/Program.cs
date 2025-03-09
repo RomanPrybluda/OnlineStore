@@ -21,6 +21,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CategoryService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
