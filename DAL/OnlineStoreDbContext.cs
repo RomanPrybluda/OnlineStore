@@ -33,7 +33,5 @@ namespace DAL
             builder.ApplyConfigurationsFromAssembly(typeof(OnlineStoreDbContext).Assembly);
             base.OnModelCreating(builder);
         }
-
-
     }
 }
