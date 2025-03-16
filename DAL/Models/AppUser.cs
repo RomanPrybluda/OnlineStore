@@ -7,9 +7,11 @@ namespace DAL
         public string? FirstName { get; set; }
 
         public string? LastName { get; set; }
-
+ 
+        public string HashedPassword { get; set; } = string.Empty;
+        public string Role { get; set; }
         public int? Age { get; set; }
-
+ 
         public string? RefreshToken { get; set; }
 
         public DateTime RefreshTokenExpiryTime { get; set; }
