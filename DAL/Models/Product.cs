@@ -10,13 +10,21 @@
 
         public decimal Price { get; set; }
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
+
+        public string Sku { get; set; } = string.Empty;
+
+        public double Rating { get; set; }
+
+        public int TotalVotes { get; set; }
+
+        public int StockQuantity { get; set; }
+
+        public bool IsActive { get; set; }
 
         public Guid CategoryId { get; set; }
 
         public Category Category { get; set; } = null!;
-
-        public ProductDetails ProductDetails { get; set; } = null!;
 
         public List<Review> Reviews { get; set; } = new();
 
