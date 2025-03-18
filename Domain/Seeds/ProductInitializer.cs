@@ -18,11 +18,19 @@ namespace Domain
         {
             var existingProductCount = _context.Products.Count();
 
+
+
             if (existingProductCount < needsProductsQuantity)
             {
+                var categories = _context.Categories.ToList();
+                if (!categories.Any())
+                {
+                    Console.WriteLine("No categories found in the database.");
+                    return;
+                }
+
                 for (int i = 0; i < (needsProductsQuantity - existingProductCount); i++)
                 {
-
                     var category = _context.Categories.OrderBy(c => Guid.NewGuid()).FirstOrDefault();
                     if (category == null) continue;
 
@@ -30,6 +38,8 @@ namespace Domain
                     var productDescription = $"Description for Product {i + 1}";
                     var productPrice = (decimal)(_random.NextDouble() * (1000 - 10) + 10);
                     var imageUrl = $"https://example.com/images/product{i + 1}.jpg";
+                    var sku = $"SKU-{Guid.NewGuid()}";
+                    var stockQuantity = _random.Next(1, 100);
 
                     var product = new Product
                     {
@@ -38,20 +48,16 @@ namespace Domain
                         Description = productDescription,
                         Price = productPrice,
                         ImageUrl = imageUrl,
+                        Sku = sku,
+                        StockQuantity = stockQuantity,
+                        IsActive = true,
                         CategoryId = category.Id,
                         Category = category,
-                    };
-
-                    var productDetails = new ProductDetails
-                    {
-                        ProductId = product.Id,
-                        Sku = $"SKU-{Guid.NewGuid()}",
-                        Attributes = $"Attributes for Product {i + 1}",
-                        StockQuantity = _random.Next(1, 100)
+                        Rating = Math.Round(_random.NextDouble() * 5, 1),
+                        TotalVotes = _random.Next(0, 500)
                     };
 
                     _context.Products.Add(product);
-                    _context.ProductDetails.Add(productDetails);
                 }
 
                 _context.SaveChanges();
