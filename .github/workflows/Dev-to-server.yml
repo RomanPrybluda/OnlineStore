@@ -29,29 +29,26 @@ jobs:
         shell: pwsh
         run: |
           $appSettingsPath = "WebAPI/appsettings.json"
-          $connectionString = @'
-          ${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}
-          '@.Trim()  # Remove extra spaces and line breaks
-
-          Write-Host "🔍 Connection string length (before replacement): $($connectionString.Length)"
-
+          $connectionString = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}".Trim()
+      
           if (Test-Path $appSettingsPath) {
               $jsonContent = Get-Content $appSettingsPath -Raw
-
-              # Replace the connection string
-              $jsonContent = $jsonContent -replace '"Default":\s*".*?"', '"Default": "' + $connectionString + '"'
-
-              # Save changes
+      
+              # Change "Default": "..."
+              $jsonContent = $jsonContent -replace '("Default":\s*)".*?"', "`$1`"$connectionString`""
+      
               $jsonContent | Set-Content $appSettingsPath -Encoding UTF8
-
-              # Check final file size
+      
+              # Check 
               $updatedContent = Get-Content $appSettingsPath -Raw
-              Write-Host "✅ Updated appsettings.json"
-              Write-Host "ℹ️ File character count after update: $($updatedContent.Length)"
+              Write-Host "🔍 Connection string length (after replacement): $($updatedContent.Length)"
+              
+              Write-Host "✅ Updated appsettings.json at: $appSettingsPath"
           } else {
-              Write-Host "❌ appsettings.json not found!"
+              Write-Host "❌ appsettings.json not found at $appSettingsPath!"
               exit 1
           }
+
 
       # Build the project
       - name: Build
