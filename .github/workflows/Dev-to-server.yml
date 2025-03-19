@@ -18,6 +18,9 @@ jobs:
         with:
           dotnet-version: 8.0    
 
+      - name: Restore dependencies
+        run: dotnet restore
+
       - name: Replace connection string in appsettings.json
         run: |
           $appSettingsPath = "WebAPI/appsettings.json"
@@ -31,9 +34,6 @@ jobs:
               Write-Host "appsettings.json not found at $appSettingsPath!"
               exit 1
           }
-
-      - name: Restore dependencies
-        run: dotnet restore
 
       - name: Build
         run: dotnet build --configuration Release
