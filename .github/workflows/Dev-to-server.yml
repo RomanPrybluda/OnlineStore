@@ -18,15 +18,36 @@ jobs:
         with:
           dotnet-version: 8.0
           
+      - name: Validate secrets
+        shell: pwsh
+        run: |
+          $secrets = @{
+            "SWEET_CRAFT_TS_CONNECTION_STRING"    = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
+            "SWEET_CRAFT_TS_WEBSITE_NAME"         = "${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}"
+            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = "${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}"
+            "SWEET_CRAFT_TS_SERVER_USERNAME"      = "${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}"
+            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = "${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}"
+          }
+
+          $missingSecrets = $secrets.Keys | Where-Object { [string]::IsNullOrWhiteSpace($secrets[$_]) }
+          if ($missingSecrets.Count -gt 0) {
+            Write-Host "::error:: The following secrets are missing or empty: $($missingSecrets -join ', ')"
+            exit 1
+          }
+
+          Write-Host "✅ All required secrets are set."
+          
+          # 🚨 ВРЕМЕННО! Полный вывод секретов (УДАЛИ ПОСЛЕ ПРОВЕРКИ!)
+          foreach ($key in $secrets.Keys) {
+            Write-Host "::warning:: $key = $($secrets[$key])"
+          }
+
+
       - name: Replace connection string in appsettings.json
         shell: pwsh
         run: |
           $connectionString = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
-          if ([string]::IsNullOrWhiteSpace($connectionString)) {
-            Write-Host "::error::Connection string is EMPTY! Check GitHub Secrets."
-            exit 1
-          }
-
+          
           Write-Host "🔍 Connection string length: $($connectionString.Length) characters"
           
           $appSettingsPath = "WebAPI/appsettings.json"
@@ -38,13 +59,13 @@ jobs:
             # Проверка после изменения
             $updatedJson = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
             if ([string]::IsNullOrWhiteSpace($updatedJson.ConnectionStrings.Default)) {
-              Write-Host "::error::Connection string was not updated correctly!"
+              Write-Host "::error:: Connection string was not updated correctly!"
               exit 1
             } else {
               Write-Host "✅ Connection string successfully updated in appsettings.json"
             }
           } else {
-            Write-Host "::error::appsettings.json not found at $appSettingsPath!"
+            Write-Host "::error:: appsettings.json not found at $appSettingsPath!"
             exit 1
           }
 
