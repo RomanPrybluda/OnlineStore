@@ -21,6 +21,21 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Replace connection string in appsettings.json
+        shell: pwsh
+        run: |
+          $appSettingsPath = "WebAPI/appsettings.json"
+          $connectionString = "${{ secrets.SWEETCRAFT_TS_CONNECTION_STRING }}"
+          
+          if (Test-Path $appSettingsPath) {
+              (Get-Content $appSettingsPath) -replace '"Default":\s*".*?"', '"Default": "' + $connectionString + '"'
+              | Set-Content $appSettingsPath -Encoding UTF8
+              Write-Host "✅ Updated appsettings.json"
+          } else {
+              Write-Host "❌ appsettings.json not found at $appSettingsPath!"
+              exit 1
+          }
+
       - name: Build
         run: dotnet build --configuration Release
 
