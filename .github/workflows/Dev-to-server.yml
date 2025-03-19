@@ -21,27 +21,43 @@ jobs:
       - name: Validate secrets
         shell: pwsh
         run: |
+          $expectedLengths = @{
+            "SWEET_CRAFT_TS_WEBSITE_NAME"         = 9  # site19760
+            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36 # https://site19760.siteasp.net:8172
+            "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9  # site19760
+            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12 # Ko5-f3%X_Z8p
+            "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116 # Длина реальной строки
+          }
+
           $secrets = @{
-            "SWEET_CRAFT_TS_CONNECTION_STRING"    = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
             "SWEET_CRAFT_TS_WEBSITE_NAME"         = "${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}"
             "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = "${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}"
             "SWEET_CRAFT_TS_SERVER_USERNAME"      = "${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}"
             "SWEET_CRAFT_TS_SERVER_PASSWORD"      = "${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}"
+            "SWEET_CRAFT_TS_CONNECTION_STRING"    = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
           }
 
+          # 1️⃣ Проверяем, есть ли секрет и не пуст ли он
           $missingSecrets = $secrets.Keys | Where-Object { [string]::IsNullOrWhiteSpace($secrets[$_]) }
           if ($missingSecrets.Count -gt 0) {
             Write-Host "::error:: The following secrets are missing or empty: $($missingSecrets -join ', ')"
             exit 1
           }
 
-          Write-Host "✅ All required secrets are set."
-          
-          # 🚨 ВРЕМЕННО! Полный вывод секретов (УДАЛИ ПОСЛЕ ПРОВЕРКИ!)
-          foreach ($key in $secrets.Keys) {
-            Write-Host "::warning:: $key = $($secrets[$key])"
+          # 2️⃣ Проверяем длину каждого секрета
+          foreach ($key in $expectedLengths.Keys) {
+            $actualLength = $secrets[$key].Length
+            $expectedLength = $expectedLengths[$key]
+            
+            if ($actualLength -ne $expectedLength) {
+              Write-Host "::error:: Length mismatch for $key: expected $expectedLength, but got $actualLength"
+              exit 1
+            }
+            
+            Write-Host "::notice:: $key length check passed ($actualLength characters)"
           }
 
+          Write-Host "✅ All secrets are valid and match expected lengths."
 
       - name: Replace connection string in appsettings.json
         shell: pwsh
