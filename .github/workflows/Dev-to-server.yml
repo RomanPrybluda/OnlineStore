@@ -26,7 +26,7 @@ jobs:
             "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36   # https://site19760.siteasp.net:8172
             "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9    # site19760
             "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12   # Ko5-f3%X_Z8p
-            "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116  # Длина реальной строки
+            "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116  # Server=db15035.databaseasp.net; Database=db15035; User Id=db15035; Password=D=p97J+nZ%s2; Encrypt=False; MultipleActiveResultSets=True;
           }
 
           $errors = @()
