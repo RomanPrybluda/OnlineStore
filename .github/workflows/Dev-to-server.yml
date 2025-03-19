@@ -17,47 +17,60 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0
-          
+
+      - name: Set secrets as environment variables
+        run: |
+          echo "SWEET_CRAFT_TS_WEBSITE_NAME=${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}" >> $GITHUB_ENV
+          echo "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME=${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}" >> $GITHUB_ENV
+          echo "SWEET_CRAFT_TS_SERVER_USERNAME=${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}" >> $GITHUB_ENV
+          echo "SWEET_CRAFT_TS_SERVER_PASSWORD=${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}" >> $GITHUB_ENV
+          echo "SWEET_CRAFT_TS_CONNECTION_STRING=${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}" >> $GITHUB_ENV
+
       - name: Validate secrets
         shell: pwsh
         run: |
           $expectedLengths = @{
-            "SWEET_CRAFT_TS_WEBSITE_NAME"         = 9    # site19760
-            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36   # https://site19760.siteasp.net:8172
-            "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9    # site19760
-            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12   # Ko5-f3%X_Z8p
-            "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116  # Server=db15035.databaseasp.net; Database=db15035; User Id=db15035; Password=D=p97J+nZ%s2; Encrypt=False; MultipleActiveResultSets=True;
+            "SWEET_CRAFT_TS_WEBSITE_NAME"         = 9   # site19760
+            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36  # https://site19760.siteasp.net:8172
+            "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9   # site19760
+            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12  # Ko5-f3%X_Z8p
+            "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116 # Длина реальной строки
           }
 
-          $errors = @()
-
-          foreach ($key in $expectedLengths.Keys) {
-            $secret = "${{ secrets[$key] }}"
-            if ([string]::IsNullOrWhiteSpace($secret)) {
-              $errors += "::error:: ❌ Secret '$key' is missing or empty!"
-              continue
-            }
-
-            $actualLength = $secret.Length
-            $expectedLength = $expectedLengths[$key]
-
-            if ($actualLength -ne $expectedLength) {
-              Write-Host "::warning:: ⚠️ Length mismatch for '$key' -> expected: $expectedLength, got: $actualLength"
-            } else {
-              Write-Host "::notice:: ✅ '$key' length check passed ($actualLength characters)"
-            }
+          $secrets = @{
+            "SWEET_CRAFT_TS_WEBSITE_NAME"         = $env:SWEET_CRAFT_TS_WEBSITE_NAME
+            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = $env:SWEET_CRAFT_TS_SERVER_COMPUTER_NAME
+            "SWEET_CRAFT_TS_SERVER_USERNAME"      = $env:SWEET_CRAFT_TS_SERVER_USERNAME
+            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = $env:SWEET_CRAFT_TS_SERVER_PASSWORD
+            "SWEET_CRAFT_TS_CONNECTION_STRING"    = $env:SWEET_CRAFT_TS_CONNECTION_STRING
           }
 
-          if ($errors.Count -gt 0) {
-            $errors | ForEach-Object { Write-Host $_ }
+          # Проверяем, что секреты не пустые
+          $missingSecrets = $secrets.Keys | Where-Object { -not $secrets[$_] -or [string]::IsNullOrWhiteSpace($secrets[$_]) }
+          if ($missingSecrets.Count -gt 0) {
+            Write-Host "::error:: The following secrets are missing or empty: $($missingSecrets -join ', ')"
             exit 1
           }
 
-          Write-Host "✅ All required secrets are present."
+          # Проверяем длину каждого секрета
+          foreach ($key in $expectedLengths.Keys) {
+            $actualLength = if ($secrets[$key]) { $secrets[$key].Length } else { 0 }
+            $expectedLength = $expectedLengths[$key]
+
+            if ($actualLength -ne $expectedLength) {
+              Write-Host "::error:: Length mismatch for secret '$key' -> expected: $expectedLength, got: $actualLength"
+              exit 1
+            }
+            
+            Write-Host "::notice:: ✅ $key length check passed ($actualLength characters)"
+          }
+
+          Write-Host "✅ All secrets are valid and match expected lengths."
+
       - name: Replace connection string in appsettings.json
         shell: pwsh
         run: |
-          $connectionString = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
+          $connectionString = $env:SWEET_CRAFT_TS_CONNECTION_STRING
           
           Write-Host "🔍 Connection string length: $($connectionString.Length) characters"
           
@@ -88,7 +101,7 @@ jobs:
 
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
-        
+
       - name: Test with .NET
         run: dotnet test
 
