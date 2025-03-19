@@ -9,47 +9,63 @@ jobs:
   build_and_deploy:
     runs-on: windows-latest
     steps:
+      # Checkout the repository
       - uses: actions/checkout@v4
         with:
           ref: dev
 
+      # Setup .NET 8
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0    
 
+      # Restore dependencies
       - name: Restore dependencies
         run: dotnet restore
         
+      # Replace connection string in appsettings.json
       - name: Replace connection string in appsettings.json
         shell: pwsh
         run: |
           $appSettingsPath = "WebAPI/appsettings.json"
-          $connectionString = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
-          
+          $connectionString = @'
+          ${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}
+          '@.Trim()  # Remove extra spaces and line breaks
+
+          Write-Host "🔍 Connection string length (before replacement): $($connectionString.Length)"
+
           if (Test-Path $appSettingsPath) {
-              (Get-Content $appSettingsPath) -replace '"Default":\s*".*?"', ('"Default": "' + $connectionString + '"') | Set-Content $appSettingsPath -Encoding UTF8
-              
-              # Получаем количество символов в файле
-              $fileContent = Get-Content $appSettingsPath -Raw
-              $charCount = $fileContent.Length
-              
-              Write-Host "✅ Updated appsettings.json at: $appSettingsPath"
-              Write-Host "ℹ️ File character count after update: $charCount"
+              $jsonContent = Get-Content $appSettingsPath -Raw
+
+              # Replace the connection string
+              $jsonContent = $jsonContent -replace '"Default":\s*".*?"', '"Default": "' + $connectionString + '"'
+
+              # Save changes
+              $jsonContent | Set-Content $appSettingsPath -Encoding UTF8
+
+              # Check final file size
+              $updatedContent = Get-Content $appSettingsPath -Raw
+              Write-Host "✅ Updated appsettings.json"
+              Write-Host "ℹ️ File character count after update: $($updatedContent.Length)"
           } else {
-              Write-Host "❌ appsettings.json not found at $appSettingsPath!"
+              Write-Host "❌ appsettings.json not found!"
               exit 1
           }
 
+      # Build the project
       - name: Build
         run: dotnet build --configuration Release
 
+      # Publish the project
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
 
+      # Run unit tests
       - name: Test with .NET
         run: dotnet test
 
+      # Deploy to MonsterASP.NET via WebDeploy
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
