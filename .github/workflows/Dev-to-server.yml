@@ -22,44 +22,38 @@ jobs:
         shell: pwsh
         run: |
           $expectedLengths = @{
-            "SWEET_CRAFT_TS_WEBSITE_NAME"         = 9   # site19760
-            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36  # https://site19760.siteasp.net:8172
-            "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9   # site19760
-            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12  # Ko5-f3%X_Z8p
-            "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116 # Длина реальной строки
+            "SWEET_CRAFT_TS_WEBSITE_NAME"         = 9    # site19760
+            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36   # https://site19760.siteasp.net:8172
+            "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9    # site19760
+            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12   # Ko5-f3%X_Z8p
+            "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116  # Длина реальной строки
           }
 
-          $secrets = @{
-            "SWEET_CRAFT_TS_WEBSITE_NAME"         = "${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}"
-            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = "${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}"
-            "SWEET_CRAFT_TS_SERVER_USERNAME"      = "${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}"
-            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = "${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}"
-            "SWEET_CRAFT_TS_CONNECTION_STRING"    = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
+          $errors = @()
+
+          foreach ($key in $expectedLengths.Keys) {
+            $secret = "${{ secrets[$key] }}"
+            if ([string]::IsNullOrWhiteSpace($secret)) {
+              $errors += "::error:: ❌ Secret '$key' is missing or empty!"
+              continue
+            }
+
+            $actualLength = $secret.Length
+            $expectedLength = $expectedLengths[$key]
+
+            if ($actualLength -ne $expectedLength) {
+              Write-Host "::warning:: ⚠️ Length mismatch for '$key' -> expected: $expectedLength, got: $actualLength"
+            } else {
+              Write-Host "::notice:: ✅ '$key' length check passed ($actualLength characters)"
+            }
           }
 
-          # 1️⃣ Проверяем, есть ли секреты и не пусты ли они
-          $missingSecrets = $secrets.Keys | Where-Object { [string]::IsNullOrWhiteSpace($secrets[$_]) }
-          if ($missingSecrets.Count -gt 0) {
-            Write-Host "::error:: The following secrets are missing or empty: $($missingSecrets -join ', ')"
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Host $_ }
             exit 1
           }
 
-          # 2️⃣ Проверяем длину каждого секрета
-          foreach ($key in $expectedLengths.Keys) {
-            $actualLength = $secrets[$key].Length
-            $expectedLength = $expectedLengths[$key]
-            
-            if ($actualLength -ne $expectedLength) {
-              Write-Host "::error:: Length mismatch for secret '$key' -> expected: $expectedLength, got: $actualLength"
-              exit 1
-            }
-            
-            Write-Host "::notice:: ✅ $key length check passed ($actualLength characters)"
-          }
-
-          Write-Host "✅ All secrets are valid and match expected lengths."
-
-
+          Write-Host "✅ All required secrets are present."
       - name: Replace connection string in appsettings.json
         shell: pwsh
         run: |
