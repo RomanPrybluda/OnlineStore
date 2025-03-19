@@ -19,35 +19,22 @@ namespace WebAPI
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllProductsAsync()
+        public async Task<ActionResult> GetAllProductsAsyncAsync()
         {
             var products = await _productService.GetProductsListAsync();
             return Ok(products);
         }
 
         [HttpGet("{id:Guid}")]
-        public async Task<ActionResult> GetProductByIdAsync([Required] Guid id)
+        public async Task<ActionResult> GetProductByIdAsyncAsync([Required] Guid id)
         {
             var product = await _productService.GetProductByIdAsync(id);
             return Ok(product);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> CreateProductAsync([FromBody] CreateProductDTO request)
-        {
-            var product = await _productService.CreateProductAsync(request);
-            return Ok(product);
-        }
-
-        [HttpPut("{id:Guid}")]
-        public async Task<ActionResult> UpdateProductAsync([Required] Guid id, [FromBody] UpdateProductDTO request)
-        {
-            var updatedProduct = await _productService.UpdateProductAsync(id, request);
-            return Ok(updatedProduct);
-        }
-
-        [HttpDelete("{id:Guid}")]
-        public async Task<ActionResult> DeleteProductAsync([Required] Guid id)
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public async Task<ActionResult> DeleteShipAsync([Required] Guid id)
         {
             await _productService.DeleteProductAsync(id);
             return NoContent();
