@@ -32,22 +32,28 @@ jobs:
           $connectionString = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}".Trim()
       
           if (Test-Path $appSettingsPath) {
-              $jsonContent = Get-Content $appSettingsPath -Raw
+              $jsonContent = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
       
-              # Change "Default": "..."
-              $jsonContent = $jsonContent -replace '("Default":\s*)".*?"', "`$1`"$connectionString`""
+              # Check Default in ConnectionStrings 
+              if ($jsonContent.PSObject.Properties.Name -contains "ConnectionStrings" -and
+                  $jsonContent.ConnectionStrings.PSObject.Properties.Name -contains "Default") {
+                  
+                  # Change Default в ConnectionStrings
+                  $jsonContent.ConnectionStrings.Default = $connectionString
       
-              $jsonContent | Set-Content $appSettingsPath -Encoding UTF8
-      
-              # Check 
-              $updatedContent = Get-Content $appSettingsPath -Raw
-              Write-Host "🔍 Connection string length (after replacement): $($updatedContent.Length)"
-              
-              Write-Host "✅ Updated appsettings.json at: $appSettingsPath"
+                  # Renew appsetting.json
+                  $jsonContent | ConvertTo-Json -Depth 10 | Set-Content $appSettingsPath -Encoding UTF8
+                  
+                  Write-Host "✅ Updated ConnectionStrings.Default in appsettings.json"
+              } else {
+                  Write-Host "⚠️ 'ConnectionStrings.Default' not found in appsettings.json!"
+                  exit 1
+              }
           } else {
-              Write-Host "❌ appsettings.json not found at $appSettingsPath!"
+              Write-Host "❌ appsettings.json not found!"
               exit 1
           }
+
 
 
       # Build the project
