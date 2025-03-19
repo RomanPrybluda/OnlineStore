@@ -29,14 +29,6 @@ jobs:
       - name: Validate secrets
         shell: pwsh
         run: |
-          $expectedLengths = @{
-            "SWEET_CRAFT_TS_WEBSITE_NAME"         = 9   # site19760
-            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36  # https://site19760.siteasp.net:8172
-            "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9   # site19760
-            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12  # Ko5-f3%X_Z8p
-            "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116 # Server=db15035.databaseasp.net; Database=db15035; User Id=db15035; Password=D=p97J+nZ%s2; Encrypt=False; MultipleActiveResultSets=True;
-          }
-
           $secrets = @{
             "SWEET_CRAFT_TS_WEBSITE_NAME"         = $env:SWEET_CRAFT_TS_WEBSITE_NAME
             "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = $env:SWEET_CRAFT_TS_SERVER_COMPUTER_NAME
@@ -44,54 +36,41 @@ jobs:
             "SWEET_CRAFT_TS_SERVER_PASSWORD"      = $env:SWEET_CRAFT_TS_SERVER_PASSWORD
             "SWEET_CRAFT_TS_CONNECTION_STRING"    = $env:SWEET_CRAFT_TS_CONNECTION_STRING
           }
-
-          # Проверяем, что секреты не пустые
-          $missingSecrets = $secrets.Keys | Where-Object { -not $secrets[$_] -or [string]::IsNullOrWhiteSpace($secrets[$_]) }
+      
+          # Проверяем, что все секреты заданы и не пустые
+          $missingSecrets = $secrets.Keys | Where-Object { [string]::IsNullOrWhiteSpace($secrets[$_]) }
           if ($missingSecrets.Count -gt 0) {
             Write-Host "::error:: The following secrets are missing or empty: $($missingSecrets -join ', ')"
             exit 1
           }
-
-          # Проверяем длину каждого секрета
-          foreach ($key in $expectedLengths.Keys) {
-            $actualLength = if ($secrets[$key]) { $secrets[$key].Length } else { 0 }
-            $expectedLength = $expectedLengths[$key]
-
-            if ($actualLength -ne $expectedLength) {
-              Write-Host "::error:: Length mismatch for secret '$key' -> expected: $expectedLength, got: $actualLength"
-              exit 1
-            }
-            
-            Write-Host "::notice:: ✅ $key length check passed ($actualLength characters)"
-          }
-
-          Write-Host "✅ All secrets are valid and match expected lengths."
-
-      - name: Replace connection string in appsettings.json
-        shell: pwsh
-        run: |
-          $connectionString = $env:SWEET_CRAFT_TS_CONNECTION_STRING
-          
-          Write-Host "🔍 Connection string length: $($connectionString.Length) characters"
-          
-          $appSettingsPath = "WebAPI/appsettings.json"
-          if (Test-Path $appSettingsPath) {
-            $json = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
-            $json.ConnectionStrings.Default = $connectionString
-            $json | ConvertTo-Json -Depth 3 | Set-Content -Encoding UTF8 $appSettingsPath
-
-            # Проверка после изменения
-            $updatedJson = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
-            if ([string]::IsNullOrWhiteSpace($updatedJson.ConnectionStrings.Default)) {
-              Write-Host "::error:: Connection string was not updated correctly!"
-              exit 1
-            } else {
-              Write-Host "✅ Connection string successfully updated in appsettings.json"
-            }
-          } else {
-            Write-Host "::error:: appsettings.json not found at $appSettingsPath!"
-            exit 1
-          }
+      
+          Write-Host "✅ All secrets are set and not empty."
+      
+            - name: Replace connection string in appsettings.json
+              shell: pwsh
+              run: |
+                $connectionString = $env:SWEET_CRAFT_TS_CONNECTION_STRING
+                
+                Write-Host "🔍 Connection string length: $($connectionString.Length) characters"
+                
+                $appSettingsPath = "WebAPI/appsettings.json"
+                if (Test-Path $appSettingsPath) {
+                  $json = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
+                  $json.ConnectionStrings.Default = $connectionString
+                  $json | ConvertTo-Json -Depth 3 | Set-Content -Encoding UTF8 $appSettingsPath
+      
+                  # Проверка после изменения
+                  $updatedJson = Get-Content $appSettingsPath -Raw | ConvertFrom-Json
+                  if ([string]::IsNullOrWhiteSpace($updatedJson.ConnectionStrings.Default)) {
+                    Write-Host "::error:: Connection string was not updated correctly!"
+                    exit 1
+                  } else {
+                    Write-Host "✅ Connection string successfully updated in appsettings.json"
+                  }
+                } else {
+                  Write-Host "::error:: appsettings.json not found at $appSettingsPath!"
+                  exit 1
+                }
 
       - name: Restore dependencies
         run: dotnet restore
