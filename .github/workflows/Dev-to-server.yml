@@ -22,10 +22,10 @@ jobs:
         shell: pwsh
         run: |
           $expectedLengths = @{
-            "SWEET_CRAFT_TS_WEBSITE_NAME"         = 9  # site19760
-            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36 # https://site19760.siteasp.net:8172
-            "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9  # site19760
-            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12 # Ko5-f3%X_Z8p
+            "SWEET_CRAFT_TS_WEBSITE_NAME"         = 9   # site19760
+            "SWEET_CRAFT_TS_SERVER_COMPUTER_NAME" = 36  # https://site19760.siteasp.net:8172
+            "SWEET_CRAFT_TS_SERVER_USERNAME"      = 9   # site19760
+            "SWEET_CRAFT_TS_SERVER_PASSWORD"      = 12  # Ko5-f3%X_Z8p
             "SWEET_CRAFT_TS_CONNECTION_STRING"    = 116 # Длина реальной строки
           }
 
@@ -37,7 +37,7 @@ jobs:
             "SWEET_CRAFT_TS_CONNECTION_STRING"    = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
           }
 
-          # 1️⃣ Проверяем, есть ли секрет и не пуст ли он
+          # 1️⃣ Проверяем, есть ли секреты и не пусты ли они
           $missingSecrets = $secrets.Keys | Where-Object { [string]::IsNullOrWhiteSpace($secrets[$_]) }
           if ($missingSecrets.Count -gt 0) {
             Write-Host "::error:: The following secrets are missing or empty: $($missingSecrets -join ', ')"
@@ -50,14 +50,15 @@ jobs:
             $expectedLength = $expectedLengths[$key]
             
             if ($actualLength -ne $expectedLength) {
-              Write-Host "::error:: Length mismatch for $key: expected $expectedLength, but got $actualLength"
+              Write-Host "::error:: Length mismatch for secret '$key' -> expected: $expectedLength, got: $actualLength"
               exit 1
             }
             
-            Write-Host "::notice:: $key length check passed ($actualLength characters)"
+            Write-Host "::notice:: ✅ $key length check passed ($actualLength characters)"
           }
 
           Write-Host "✅ All secrets are valid and match expected lengths."
+
 
       - name: Replace connection string in appsettings.json
         shell: pwsh
