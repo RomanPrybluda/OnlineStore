@@ -19,17 +19,27 @@ namespace Domain
             if (!categories.Any())
                 throw new CustomException(CustomExceptionType.NotFound, "No categories found");
 
-            return categories.Select(c => new CategoryDTO { Id = c.Id, Name = c.Name }).ToList();
+            var categoryDTOs = new List<CategoryDTO>();
+
+            foreach (var category in categories)
+            {
+                var categoryDTO = CategoryDTO.FromCategory(category);
+                categoryDTOs.Add(categoryDTO);
+            }
+
+            return categoryDTOs;
         }
 
         public async Task<CategoryDTO> GetCategoryByIdAsync(Guid id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var categoryById = await _context.Categories.FindAsync(id);
 
-            if (category == null)
+            if (categoryById == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {id}");
 
-            return new CategoryDTO { Id = category.Id, Name = category.Name };
+            var categoryDTO = CategoryDTO.FromCategory(categoryById);
+
+            return categoryDTO;
         }
 
         public async Task<CategoryDTO> CreateCategoryAsync(CreateCategoryDTO request)
@@ -39,11 +49,15 @@ namespace Domain
             if (existingCategory != null)
                 throw new CustomException(CustomExceptionType.IsAlreadyExists, $"Category '{request.Name}' already exists.");
 
-            var category = new Category { Name = request.Name };
+            var category = CreateCategoryDTO.ToCategory(request);
+
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return new CategoryDTO { Id = category.Id, Name = category.Name };
+            var createdCategory = await _context.Categories.FindAsync(category.Id);
+            var categoryDTO = CategoryDTO.FromCategory(createdCategory);
+
+            return categoryDTO;
         }
 
         public async Task<CategoryDTO> UpdateCategoryAsync(Guid id, UpdateCategoryDTO request)
@@ -53,10 +67,14 @@ namespace Domain
             if (category == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {id}");
 
-            category.Name = request.Name;
+            request.UpdateCategory(category);
+
+            _context.Categories.Update(category);
             await _context.SaveChangesAsync();
 
-            return new CategoryDTO { Id = category.Id, Name = category.Name };
+            var categoryDTO = CategoryDTO.FromCategory(category);
+
+            return categoryDTO;
         }
 
         public async Task DeleteCategoryAsync(Guid id)

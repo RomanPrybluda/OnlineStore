@@ -10,13 +10,13 @@ namespace Domain
 
         public string Description { get; set; } = string.Empty;
 
-        public static Category ToCategory(CreateCategoryDTO request)
+        public static CategoryDTO FromCategory(Category category)
         {
-            return new Category
+            return new CategoryDTO
             {
-                Id = Guid.NewGuid(),
-                Name = request.Name,
-                Description = request.Description
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description
             };
         }
     }
