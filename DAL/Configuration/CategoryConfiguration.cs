@@ -21,7 +21,11 @@ namespace DAL
 
             builder.Property(c => c.Name)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(50);
+
+            builder.Property(c => c.Description)
+                .IsRequired()
+                .HasMaxLength(200);
         }
     }
 }

@@ -33,14 +33,14 @@ namespace WebAPI
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateProductAsync([FromBody] CreateProductDTO request)
+        public async Task<ActionResult> CreateProductAsync([FromBody][Required] CreateProductDTO request)
         {
             var product = await _productService.CreateProductAsync(request);
             return Ok(product);
         }
 
         [HttpPut("{id:Guid}")]
-        public async Task<ActionResult> UpdateProductAsync([Required] Guid id, [FromBody] UpdateProductDTO request)
+        public async Task<ActionResult> UpdateProductAsync([Required] Guid id, [FromBody][Required] UpdateProductDTO request)
         {
             var updatedProduct = await _productService.UpdateProductAsync(id, request);
             return Ok(updatedProduct);
