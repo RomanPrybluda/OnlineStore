@@ -27,12 +27,14 @@ namespace DAL
                 .HasPrincipalKey(u => u.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(r => r.Rating)
-                .IsRequired()
-                .HasDefaultValue(1);
+            builder.Property(r => r.ReviewRating)
+                .IsRequired();
 
             builder.Property(r => r.Comment)
                 .HasMaxLength(500);
+
+            builder.ToTable(t =>
+                t.HasCheckConstraint("CK_Review_Rating", "[ReviewRating] BETWEEN 1 AND 5"));
         }
     }
 }
