@@ -276,7 +276,6 @@ namespace DAL.Migrations
                         .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -286,10 +285,8 @@ namespace DAL.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Rating")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                    b.Property<int>("ReviewRating")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -301,7 +298,10 @@ namespace DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", t =>
+                        {
+                            t.HasCheckConstraint("CK_Review_Rating", "[ReviewRating] BETWEEN 1 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

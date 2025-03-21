@@ -275,13 +275,14 @@ namespace DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    Comment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ReviewRating = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Reviews", x => x.Id);
+                    table.CheckConstraint("CK_Review_Rating", "[ReviewRating] BETWEEN 1 AND 5");
                     table.ForeignKey(
                         name: "FK_Reviews_AspNetUsers_UserId",
                         column: x => x.UserId,

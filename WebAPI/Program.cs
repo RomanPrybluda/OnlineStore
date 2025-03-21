@@ -22,6 +22,8 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<ReviewService>();
+builder.Services.AddScoped<AppUserService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -47,6 +49,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+
     context.Database.Migrate();
 
     var categoryInitializer = new CategoryInitializer(context);
@@ -54,6 +58,9 @@ using (var scope = app.Services.CreateScope())
 
     var productInitializer = new ProductInitializer(context);
     productInitializer.InitializeProducts();
+
+    var appUserInitializer = new AppUserInitializer(context, userManager);
+    appUserInitializer.InitializeUsers();
 
 }
 
