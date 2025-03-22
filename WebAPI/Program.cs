@@ -44,6 +44,14 @@ builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 
 builder.Logging.AddConsole();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -69,6 +77,8 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 //}
+
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
