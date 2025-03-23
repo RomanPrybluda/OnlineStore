@@ -14,6 +14,8 @@ namespace DAL
 
         public DateTime RefreshTokenExpiryTime { get; set; }
 
+        public string HashedPassword { get; set; }
+
         public List<Review> Reviews { get; set; } = new();
 
         public List<Order> Orders { get; set; } = new();
