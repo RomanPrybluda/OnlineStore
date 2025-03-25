@@ -11,7 +11,6 @@ public class TokenService
 {
     private readonly IConfiguration _configuration;
 
-    
     public TokenService(IConfiguration config)
     {
         _configuration = config;
@@ -21,24 +20,35 @@ public class TokenService
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
+        // Загрузка секретного ключа
+        var secretKey = jwtSettings["SecretKey"];
+        if (string.IsNullOrEmpty(secretKey))
+        {
+            throw new ArgumentNullException(nameof(secretKey), "JWT SecretKey is not set in configuration.");
+        }
+
+        // Создание ключа для подписи токена
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        // Добавление claims (данных пользователя)
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, user.FirstName),
             new Claim(ClaimTypes.Surname, user.LastName),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.Role, user.Role) // Добавление роли пользователя
         };
 
+        // Создание токена
         var token = new JwtSecurityToken(
             issuer: jwtSettings["Issuer"],
             audience: jwtSettings["Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["ExpiresInMinutes"] ?? "60")),
+            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["ExpiryInMinutes"] ?? "60")), // Время жизни токена
             signingCredentials: creds
         );
 
+        // Возврат токена в виде строки
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

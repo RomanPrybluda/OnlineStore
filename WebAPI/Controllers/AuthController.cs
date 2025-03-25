@@ -1,44 +1,98 @@
 using Domain.Services.AuthService;
-using Domain.Services.AuthService.Login.DTO;
 using Domain.Services.User.DTO;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Domain.Services.User;
+using LoginDTO = Domain.Services.User.DTO.LoginDTO;
+using DAL;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI;
+
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
+    private readonly OnlineStoreDbContext _dbContext;
     private readonly AuthService _authService;
+    
 
-    public AuthController(AuthService authService)
+    public AuthController(AuthService authService, OnlineStoreDbContext dbContext)
     {
+        _dbContext = dbContext;
         _authService = authService;
     }
 
     [HttpPost("Register")]
-    public IActionResult Registration([FromBody] UserDTO user)
+    public IActionResult Registration([FromBody] RegisterDTO registerDto)
     {
-        var succes = _authService.Register(user);
-     
-        return Ok(new
+        var token = _authService.Register(registerDto);
+
+        if (token == null)
         {
-            Token = succes
-        });
+            return BadRequest(new { message = "User registration failed" });
+        }
+
+        return Ok(new { Token = token });
     }
 
     [HttpPost("Login")]
-    public async Task<string> Login([FromBody] LoginDTO login)
+    public async Task<IActionResult> Login([FromBody] LoginDTO login)
     {
-        var validUser = await _authService.Validate(login);
-    
-        return validUser;
-    }
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
+        var token = await _authService.Validate(login);
+
+        if (token == null)
+        {
+            return Unauthorized("Invalid email or password");
+        }
+
+        return Ok(new { Token = token });
+    }
 
     [HttpPost("Logout")]
     public IActionResult Logout()
     {
         return Ok(new { message = "You have successfully logged out" });
+    }
+
+    
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDto)
+    {
+        if (ModelState.IsValid)
+        {
+            var result = await _authService.ForgotPasswordAsync(forgotPasswordDto.Email);
+            if (result == "User not found")
+            {
+                return BadRequest("User not found.");
+            }
+
+            return Ok(new { Message = "Password reset token sent.", Token = result });
+        }
+        return BadRequest(ModelState);
+    }
+
+   
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO resetPasswordDto)
+    {
+        if (ModelState.IsValid)
+        {
+            var result = await _authService.ResetPasswordAsync(resetPasswordDto.Email, resetPasswordDto.Token, resetPasswordDto.NewPassword);
+            if (result)
+            {
+                return Ok("Password reset successfully.");
+            }
+            else
+            {
+                return BadRequest("Failed to reset password. Please check the token and try again.");
+            }
+        }
+        return BadRequest(ModelState);
     }
 }

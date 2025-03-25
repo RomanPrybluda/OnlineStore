@@ -1,30 +1,58 @@
 using DAL;
 using Domain;
+using Domain.Services.AuthService;
+using Domain.Services.User;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
-using Domain.Services.AuthService;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("Default");
-var localConnectionString = builder.Configuration["ConnectionStrings:LocalConnectionString"];
 
-if (!string.IsNullOrWhiteSpace(localConnectionString))
-{
-    connectionString = localConnectionString;
-}
+builder.Configuration.AddUserSecrets<Program>();
+
+var connectionString = builder.Configuration.GetConnectionString("Default") ??
+                       builder.Configuration["ConnectionStrings:LocalConnectionString"];
 
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException("Connection string is not set. Check environment variables, appsettings.json, or secrets.");
 }
 
+
+builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
+{
+    options.UseSqlServer(connectionString, b => b.MigrationsAssembly("DAL"));
+});
+
+
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 8;
+    options.User.RequireUniqueEmail = true;
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+})
+.AddEntityFrameworkStores<OnlineStoreDbContext>()
+.AddDefaultTokenProviders();
+
+
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<TokenService>();
+
+
+
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]);
+var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -44,37 +72,30 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<CategoryService>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<TokenService>();
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddHttpClient();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddIdentityCore<AppUser>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<OnlineStoreDbContext>();
-
-builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
-{
-    options.UseSqlServer(connectionString, b => b.MigrationsAssembly("DAL"));
-});
-
-builder.Logging.AddConsole();
-
 var app = builder.Build();
+
+
+
+
 
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
-    context.Database.Migrate();
+
+    if (context.Database.GetPendingMigrations().Any())
+    {
+        context.Database.Migrate();
+    }
 
     var categoryInitializer = new CategoryInitializer(context);
     categoryInitializer.InitializeCategories();
@@ -82,6 +103,7 @@ using (var scope = app.Services.CreateScope())
     var productInitializer = new ProductInitializer(context);
     productInitializer.InitializeProducts();
 }
+
 
 app.UseSwagger();
 app.UseSwaggerUI();
