@@ -39,6 +39,5 @@ namespace WebAPI
             await _productService.DeleteProductAsync(id);
             return NoContent();
         }
-
     }
 }

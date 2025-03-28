@@ -4,6 +4,7 @@ using DAL;
 using Domain.Services.User.DTO;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Domain.Services.AuthService
 {
@@ -17,7 +18,6 @@ namespace Domain.Services.AuthService
             _context = context;
             _tokenService = tokenService;
         }
-
         /// <summary>
         /// Регистрирует нового пользователя.
         /// </summary>
@@ -92,23 +92,6 @@ namespace Domain.Services.AuthService
             user.ResetTokenExpires = null;
 
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-
-        /// <summary>
-        /// Изменяет пароль.
-        /// </summary>
-        public async Task<bool> ChangePassword(string userId, string oldPassword, string newPassword)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
-            if (user == null || !VerifyPassword(oldPassword, user.HashedPassword))
-            {
-                return false; 
-            }
-
-            user.HashedPassword = HashPassword(newPassword); 
-            await _context.SaveChangesAsync(); 
             return true;
         }
 
