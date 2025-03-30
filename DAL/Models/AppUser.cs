@@ -10,7 +10,7 @@ namespace DAL
         public string? LastName { get; set; }
  
         public string HashedPassword { get; set; } = string.Empty;
-        public string Role { get; set; }
+        public string? Role { get; set; } = "User";
         public int? Age { get; set; }
         public string? RefreshToken { get; set; }
 
