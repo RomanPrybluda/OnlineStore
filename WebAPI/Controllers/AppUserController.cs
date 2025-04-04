@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using SendGrid.Helpers.Errors.Model;
 
-namespace WebAPI.Controllers
+namespace WebAPI
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("appusers")]
     public class AppUserController : ControllerBase
     {
         private readonly AppUserService _userService;

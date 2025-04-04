@@ -8,11 +8,11 @@ namespace Domain
 
         public string Name { get; set; } = string.Empty;
 
-        public decimal Price { get; set; }
-
         public string ImageUrl { get; set; } = string.Empty;
 
-        public Guid CategoryId { get; set; }
+        public string SortDescription { get; set; }
+
+        public decimal Price { get; set; }
 
         public bool IsActive { get; set; }
 
@@ -22,10 +22,10 @@ namespace Domain
             {
                 Id = product.Id,
                 Name = product.Name,
+                SortDescription = product.SortDescription,
                 IsActive = product.IsActive,
                 Price = product.Price,
-                ImageUrl = product.ImageUrl,
-                CategoryId = product.CategoryId
+                ImageUrl = product.ImageUrl
             };
         }
     }

@@ -20,6 +20,10 @@ namespace DAL
                 .IsRequired()
                 .HasMaxLength(1000);
 
+            builder.Property(p => p.SortDescription)
+                .IsRequired()
+                .HasMaxLength(200);
+
             builder.Property(p => p.Sku)
                 .IsRequired()
                 .HasMaxLength(50);
