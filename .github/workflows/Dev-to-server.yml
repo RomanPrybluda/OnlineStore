@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+  workflow_dispatch: {}
 
 jobs:
   build_and_deploy:
@@ -58,7 +59,7 @@ jobs:
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
-          website-name: ${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}
+          website-name: ${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }} /backend
           server-computer-name: ${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}
           server-username: ${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}
           server-password: ${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}
