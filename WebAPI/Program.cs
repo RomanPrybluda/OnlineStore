@@ -47,6 +47,16 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
 
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Swee Craft Online Store API",
+        Version = "v1"
+    });
+});
+
+
 builder.Logging.AddConsole();
 
 builder.Services.AddCors(options =>
