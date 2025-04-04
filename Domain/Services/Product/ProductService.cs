@@ -13,23 +13,21 @@ namespace Domain
             _context = context;
         }
 
-        public async Task<IEnumerable<ProductDTO>> GetProductsListAsync()
+        public async Task<IEnumerable<ProductDTO>> GetProductsListAsync(bool? onlyActive = null)
         {
-            var products = await _context.Products.ToListAsync();
+            var query = _context.Products.AsQueryable();
 
-            if (products == null || !products.Any())
-                throw new CustomException(CustomExceptionType.NotFound, "No Products");
-
-            var productDTOs = new List<ProductDTO>();
-
-            foreach (var product in products)
+            if (onlyActive == true)
             {
-                var productDTO = ProductDTO.FromProduct(product);
-                productDTOs.Add(productDTO);
+                query = query.Where(p => p.IsActive);
             }
 
-            return productDTOs;
+            var products = await query.ToListAsync();
 
+            if (!products.Any())
+                throw new CustomException(CustomExceptionType.NotFound, "No Products");
+
+            return products.Select(ProductDTO.FromProduct);
         }
 
         public async Task<ProductByIdDTO> GetProductByIdAsync(Guid id)

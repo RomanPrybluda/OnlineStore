@@ -2,10 +2,10 @@
 using Domain;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebAPI.Controllers
+namespace WebAPI
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("appusers")]
     public class AppUserController : ControllerBase
     {
         private readonly AppUserService _userService;
