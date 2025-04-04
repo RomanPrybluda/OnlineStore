@@ -19,9 +19,9 @@ namespace WebAPI
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllProductsAsync()
+        public async Task<ActionResult> GetAllProductsAsync([FromQuery] bool? onlyActive = null)
         {
-            var products = await _productService.GetProductsListAsync();
+            var products = await _productService.GetProductsListAsync(onlyActive);
             return Ok(products);
         }
 
