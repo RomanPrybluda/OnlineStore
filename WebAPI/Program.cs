@@ -51,7 +51,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "Swee Craft Online Store API",
+        Title = "Sweet Craft Online Store API",
         Version = "v1"
     });
 });
@@ -108,13 +108,14 @@ app.UseSwagger();
 app.UseSwaggerUI();
 //}
 
-app.UseCors("AllowAll");
-
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
