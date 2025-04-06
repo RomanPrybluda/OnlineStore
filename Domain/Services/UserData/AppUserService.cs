@@ -1,9 +1,8 @@
 ﻿using DAL;
-using Domain.Services.AppUser.DTO;
+using Domain.Services.UserData.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Errors.Model;
-using System.Data;
 
 namespace Domain
 {
@@ -63,9 +62,8 @@ namespace Domain
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Age = user.Age,
-                    Reviews = user.Reviews,
-                    Orders = user.Orders,
-                    Id  = user.Id
+                    Id  = user.Id,
+                    UserName = user.UserName
             };
         }
 
@@ -80,6 +78,7 @@ namespace Domain
             user.FirstName = updateRequest.FirstName ?? user.FirstName;
             user.LastName = updateRequest.LastName ?? user.LastName;
             user.Age = updateRequest.Age ?? user.Age;
+            user.UserName = updateRequest.UserName ?? user.UserName;
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -92,7 +91,8 @@ namespace Domain
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Age = user.Age
+                Age = user.Age,
+                UserName = user.UserName
             };
         }
     }

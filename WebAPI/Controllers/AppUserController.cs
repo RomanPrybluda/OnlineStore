@@ -1,8 +1,7 @@
 ﻿using DAL;
 using Domain;
-using Domain.Services.AppUser.DTO;
+using Domain.Services.UserData.DTO;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using SendGrid.Helpers.Errors.Model;
 
 namespace WebAPI

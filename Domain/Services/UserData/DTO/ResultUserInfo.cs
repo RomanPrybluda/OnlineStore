@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Services.AppUser.DTO
+namespace Domain.Services.UserData.DTO
 {
-     public class ResultUserInfo
+    public class ResultUserInfo
     {
         [EmailAddress]
         public string Email { get; set; }
@@ -18,7 +18,8 @@ namespace Domain.Services.AppUser.DTO
 
         public string? LastName { get; set; }
 
+        public string UserName { get; set; }
+        
         public int? Age { get; set; }
-
     }
 }
