@@ -51,9 +51,7 @@ namespace Domain
 
             await File.WriteAllBytesAsync(filePath, compressedContent);
 
-            var normalizedFilePath = filePath.Replace("\\", "/");
-
-            return normalizedFilePath;
+            return filePath;
         }
 
         private void ValidateImage(IFormFile file)
