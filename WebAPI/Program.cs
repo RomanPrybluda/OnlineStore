@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
@@ -114,8 +115,17 @@ app.UseCors("AllowAll");
 //if (app.Environment.IsDevelopment())
 //{
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(
+    c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "staticImage v1")
+    );
 //}
+
+app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions()
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"images")),
+    RequestPath = new PathString("/images")
+});
 
 app.UseHttpsRedirection();
 
