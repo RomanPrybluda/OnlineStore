@@ -51,7 +51,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "Sweet Craft Online Store API",
+        Title = "Craft Sweets Online Store API",
         Version = "v1"
     });
 });
