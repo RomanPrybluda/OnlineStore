@@ -115,9 +115,7 @@ app.UseCors("AllowAll");
 //if (app.Environment.IsDevelopment())
 //{
 app.UseSwagger();
-app.UseSwaggerUI(
-    c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "staticImage v1")
-    );
+app.UseSwaggerUI();
 //}
 
 app.UseStaticFiles();
