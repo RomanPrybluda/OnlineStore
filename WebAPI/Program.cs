@@ -50,7 +50,7 @@ builder.Services.AddScoped<AppUserService>();
 
 builder.Services.Configure<ImageStorageSettings>(
     builder.Configuration.GetSection("ImageStorageSettings"));
-
+builder.Services.AddScoped<ImageService>();
 builder.Services.AddSingleton(resolver =>
     resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
 

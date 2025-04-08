@@ -93,20 +93,26 @@ namespace Domain
 
         private IImageEncoder GetEncoder(string extension)
         {
+            var allowedJpegExtensions = _settings.AllowedFileExtensions.Where(ext => ext.ToLower() == ".jpg" || ext.ToLower() == ".jpeg").ToList();
+            var allowedPngExtensions = _settings.AllowedFileExtensions.Where(ext => ext.ToLower() == ".png").ToList();
+            var allowedWebpExtensions = _settings.AllowedFileExtensions.Where(ext => ext.ToLower() == ".webp").ToList();
+
             return extension.ToLower() switch
             {
-                ".jpg" or ".jpeg" => new JpegEncoder
+                _ when allowedJpegExtensions.Contains(extension.ToLower()) => new JpegEncoder
                 {
-                    Quality = _settings.JpegQuality
+                    Quality = _settings.Jpeg.Quality
                 },
-                ".png" => new PngEncoder
+                _ when allowedPngExtensions.Contains(extension.ToLower()) => new PngEncoder
                 {
-                    CompressionLevel = (PngCompressionLevel)_settings.PngCompressionLevel
+                    CompressionLevel = (PngCompressionLevel)_settings.Png.CompressionLevel
                 },
-                ".webp" => new WebpEncoder
+                _ when allowedWebpExtensions.Contains(extension.ToLower()) => new WebpEncoder
                 {
-                    Quality = _settings.WebpQuality,
-                    FileFormat = WebpFileFormatType.Lossy
+                    Quality = _settings.Webp.Quality,
+                    FileFormat = Enum.TryParse<WebpFileFormatType>(_settings.Webp.FileFormat, out var fileFormat)
+                        ? fileFormat
+                        : WebpFileFormatType.Lossy
                 },
                 _ => throw new NotSupportedException($"No encoder available for extension {extension}")
             };
