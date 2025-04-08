@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
@@ -111,11 +110,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseStaticFiles();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"images")),
-    RequestPath = "/images"
-});
 
 app.UseCors("AllowAll");
 
