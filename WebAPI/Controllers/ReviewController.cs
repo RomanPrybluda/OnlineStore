@@ -31,14 +31,14 @@ namespace WebAPI
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateReviewAsync([FromBody] CreateReviewDTO request)
+        public async Task<ActionResult> CreateReviewAsync([FromForm][FromBody] CreateReviewDTO request)
         {
             var review = await _reviewService.CreateReviewAsync(request);
             return Ok(review);
         }
 
         [HttpPut("{id:Guid}")]
-        public async Task<ActionResult> UpdateReviewAsync([Required] Guid id, [FromBody] UpdateReviewDTO request)
+        public async Task<ActionResult> UpdateReviewAsync([Required] Guid id, [FromForm][FromBody] UpdateReviewDTO request)
         {
             var updatedReview = await _reviewService.UpdateReviewAsync(id, request);
             return Ok(updatedReview);
