@@ -41,14 +41,12 @@ namespace Domain
 
             string fileExtension = Path.GetExtension(imageFile.FileName).ToLower();
 
-            string path = Path.Combine(_hostEnvironment.ContentRootPath, "images");
-
+            string path = Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot", "images");
             Directory.CreateDirectory(path);
 
             var compressedContent = await CompressImage(imageFile, fileExtension);
 
             var uniqueFileName = GenerateUniqueImageName(imageFile.FileName);
-
             var filePath = Path.Combine(path, uniqueFileName);
 
             await File.WriteAllBytesAsync(filePath, compressedContent);
@@ -123,12 +121,8 @@ namespace Domain
         private string GenerateUniqueImageName(string fileName)
         {
             var fileExtension = Path.GetExtension(fileName);
-
-            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-
-            return $"{timestamp}_{Guid.NewGuid():N}{fileExtension}";
+            return $"{Guid.NewGuid():N}{fileExtension}";
         }
-
 
         private bool TryParseSize(string? sizeString, out (int Width, int Height) size)
         {
