@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
 
@@ -47,11 +48,17 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
 
+builder.Services.Configure<ImageStorageSettings>(
+    builder.Configuration.GetSection("ImageStorageSettings"));
+builder.Services.AddScoped<ImageService>();
+builder.Services.AddSingleton(resolver =>
+    resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "Sweet Craft Online Store API",
+        Title = "Craft Sweets Online Store API",
         Version = "v1"
     });
 });

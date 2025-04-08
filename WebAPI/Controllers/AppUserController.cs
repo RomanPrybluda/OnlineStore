@@ -34,7 +34,7 @@ namespace WebAPI
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] AppUser user)
+        public async Task<IActionResult> CreateUser([FromForm][FromBody] AppUser user)
         {
             var password = "User@123";
             var result = await _userService.CreateUserAsync(user, password);

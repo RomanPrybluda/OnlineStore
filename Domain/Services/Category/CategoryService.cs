@@ -6,10 +6,12 @@ namespace Domain
     public class CategoryService
     {
         private readonly OnlineStoreDbContext _context;
+        private readonly ImageService _imageService;
 
-        public CategoryService(OnlineStoreDbContext context)
+        public CategoryService(OnlineStoreDbContext context, ImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync()
@@ -49,16 +51,29 @@ namespace Domain
             if (existingCategory != null)
                 throw new CustomException(CustomExceptionType.IsAlreadyExists, $"Category '{request.Name}' already exists.");
 
-            var category = CreateCategoryDTO.ToCategory(request);
+            string imageUrl = string.Empty;
+            if (request.Image != null)
+            {
+                imageUrl = await _imageService.UploadImageAsync(request.Image);
+            }
+
+            var category = CreateCategoryDTO.ToCategory(request, imageUrl);
 
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
             var createdCategory = await _context.Categories.FindAsync(category.Id);
+
+            if (createdCategory == null)
+            {
+                throw new CustomException(CustomExceptionType.NotFound, "The category could not be found after creation.");
+            }
+
             var categoryDTO = CategoryDTO.FromCategory(createdCategory);
 
             return categoryDTO;
         }
+
 
         public async Task<CategoryDTO> UpdateCategoryAsync(Guid id, UpdateCategoryDTO request)
         {
@@ -67,7 +82,13 @@ namespace Domain
             if (category == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {id}");
 
-            request.UpdateCategory(category);
+            string imageUrl = string.Empty;
+            if (request.Image != null)
+            {
+                imageUrl = await _imageService.UploadImageAsync(request.Image);
+            }
+
+            request.UpdateCategory(category, imageUrl);
 
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();

@@ -10,13 +10,16 @@ namespace Domain
 
         public string Description { get; set; } = string.Empty;
 
+        public string ImageUrl { get; set; } = string.Empty;
+
         public static CategoryDTO FromCategory(Category category)
         {
             return new CategoryDTO
             {
                 Id = category.Id,
                 Name = category.Name,
-                Description = category.Description
+                Description = category.Description,
+                ImageUrl = category.ImageUrl
             };
         }
     }
