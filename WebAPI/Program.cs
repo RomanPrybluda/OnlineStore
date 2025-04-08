@@ -109,6 +109,8 @@ using (var scope = app.Services.CreateScope())
 
 }
 
+app.UseStaticFiles();
+
 app.UseCors("AllowAll");
 
 //if (app.Environment.IsDevelopment())
