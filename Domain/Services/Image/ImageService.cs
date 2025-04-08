@@ -41,7 +41,7 @@ namespace Domain
 
             string fileExtension = Path.GetExtension(imageFile.FileName).ToLower();
 
-            string path = Path.Combine(_hostEnvironment.ContentRootPath, "images");
+            string path = Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot", "images");
             Directory.CreateDirectory(path);
 
             var compressedContent = await CompressImage(imageFile, fileExtension);
@@ -51,9 +51,7 @@ namespace Domain
 
             await File.WriteAllBytesAsync(filePath, compressedContent);
 
-            var normalizedFilePath = filePath.Replace("\\", "/");
-
-            return normalizedFilePath;
+            return filePath;
         }
 
         private void ValidateImage(IFormFile file)
