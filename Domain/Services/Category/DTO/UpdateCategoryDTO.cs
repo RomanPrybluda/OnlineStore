@@ -9,7 +9,7 @@ namespace Domain
 
         public string Description { get; set; } = string.Empty;
 
-        public IFormFile Image { get; set; } = null!;
+        public IFormFile Image { get; set; }
 
         public void UpdateCategory(Category category, string imageUrl)
         {
