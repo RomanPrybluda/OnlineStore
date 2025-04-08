@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
 
@@ -46,6 +47,12 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
+
+builder.Services.Configure<ImageStorageSettings>(
+    builder.Configuration.GetSection("ImageStorageSettings"));
+
+builder.Services.AddSingleton(resolver =>
+    resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
 
 builder.Services.AddSwaggerGen(options =>
 {
