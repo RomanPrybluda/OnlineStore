@@ -16,6 +16,8 @@ namespace Domain
 
         public int StockQuantity { get; set; }
 
+        public bool IsActive { get; set; }
+
         public Guid CategoryId { get; set; }
 
         public static Product ToProduct(CreateProductDTO request)
@@ -29,7 +31,7 @@ namespace Domain
                 ImageUrl = request.ImageUrl,
                 Sku = request.Sku,
                 StockQuantity = request.StockQuantity,
-                IsActive = true,
+                IsActive = request.IsActive,
                 CategoryId = request.CategoryId,
                 Rating = 0,
                 TotalVotes = 0
