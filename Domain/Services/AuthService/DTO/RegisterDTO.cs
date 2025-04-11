@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DAL;
+using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Services.AuthService.DTO
+namespace Domain
 {
     public class RegisterDTO
     {
@@ -28,5 +29,18 @@ namespace Domain.Services.AuthService.DTO
         [MaxLength(16)]
         [RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$", ErrorMessage = "The password must contain at least one uppercase letter, one number and one special character.")]
         public string Password { get; set; }
+
+
+        public static AppUser FromRegisterDTO(RegisterDTO registerDto)
+        {
+            return new AppUser
+            {
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                Email = registerDto.Email,
+                Age = registerDto.Age,
+                UserName = registerDto.UserName
+            };
+        }
     }
 }

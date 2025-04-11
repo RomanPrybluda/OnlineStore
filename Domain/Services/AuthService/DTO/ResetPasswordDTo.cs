@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DAL;
+using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Services.User.DTO
+namespace Domain
 {
     public class ResetPasswordDTO
     {
@@ -13,6 +14,16 @@ namespace Domain.Services.User.DTO
         [RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$", ErrorMessage = "The password must contain at least one uppercase letter, one number and one special character.")]
         public string NewPassword { get; set; }
         [Required]
-        public string Token { get; set; }  
+        public string Token { get; set; }
+
+        public static ResetPasswordDTO FromAppUser(AppUser appUser, string token)
+        {
+            return new ResetPasswordDTO
+            {
+                Email = appUser.Email,
+                Token = token 
+            };
+        }
+
     }
 }

@@ -20,6 +20,8 @@ public class UserDTO
     [EmailAddress(ErrorMessage = "Invalid email format.")]
     public string Email { get; set; }
 
+    
+
     [Required]
     [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
     [MaxLength(16, ErrorMessage = "password must be up to 16 characters")]

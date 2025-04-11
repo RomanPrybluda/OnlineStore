@@ -1,22 +1,16 @@
 using Domain.Services.AuthService;
-using Domain.Services.User.DTO;
 using Microsoft.AspNetCore.Mvc;
-using Domain.Services.User;
-using LoginDTO = Domain.Services.AuthService.DTO.LoginDTO;
 using DAL;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Domain.Services.AuthService.DTO;
+using Domain;
 
 namespace WebAPI;
 
 [ApiController]
-[Route("api/auth")]
+[Route("/auth")]
 public class AuthController : ControllerBase
 {
     private readonly OnlineStoreDbContext _dbContext;
     private readonly AuthService _authService;
-    
 
     public AuthController(AuthService authService, OnlineStoreDbContext dbContext)
     {
@@ -25,9 +19,14 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Register")]
-    public IActionResult Registration([FromBody] RegisterDTO registerDto)
+    public async Task<IActionResult> Registration([FromBody] RegisterDTO registerDto)
     {
-        var token = _authService.Register(registerDto);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var token = await _authService.Register(registerDto);
 
         if (token == null)
         {
@@ -58,42 +57,41 @@ public class AuthController : ControllerBase
     [HttpPost("Logout")]
     public IActionResult Logout()
     {
+       
         return Ok(new { message = "You have successfully logged out" });
     }
 
-    
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDto)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            var result = await _authService.ForgotPasswordAsync(forgotPasswordDto.Email);
-            if (result == "User not found")
-            {
-                return BadRequest("User not found.");
-            }
-
-            return Ok(new { Message = "Password reset token sent.", Token = result });
+            return BadRequest(ModelState);
         }
-        return BadRequest(ModelState);
+
+        var result = await _authService.ForgotPasswordAsync(forgotPasswordDto.Email);
+        if (result == "User not found")
+        {
+            return BadRequest("User not found.");
+        }
+
+        return Ok(new { Message = "Password reset token sent.", Token = result });
     }
 
-   
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO resetPasswordDto)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            var result = await _authService.ResetPasswordAsync(resetPasswordDto.Email, resetPasswordDto.Token, resetPasswordDto.NewPassword);
-            if (result)
-            {
-                return Ok("Password reset successfully.");
-            }
-            else
-            {
-                return BadRequest("Failed to reset password. Please check the token and try again.");
-            }
+            return BadRequest(ModelState);
         }
-        return BadRequest(ModelState);
+
+        var result = await _authService.ResetPasswordAsync(resetPasswordDto);
+        if (result)
+        {
+            return Ok("Password reset successfully.");
+        }
+
+        return BadRequest("Failed to reset password. Please check the token and try again.");
     }
 }

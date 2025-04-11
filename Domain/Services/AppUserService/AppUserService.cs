@@ -1,5 +1,4 @@
 ﻿using DAL;
-using Domain.Services.UserData.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Errors.Model;
@@ -18,14 +17,25 @@ namespace Domain
             _roleManager = roleManager;
         }
 
-        public async Task<List<AppUser>> GetAllUsersAsync()
+        public async Task<List<UserInfoDTO>> GetAllUsersAsync()
         {
-            return await _userManager.Users.ToListAsync();
+            var users =  await _userManager.Users.ToListAsync();
+
+            if (!users.Any()) 
+            {
+                throw new NotFoundException();
+            }
+
+            var usersDTOs = users.Select(UserInfoDTO.FromAppUser).ToList();
+            return usersDTOs;
+
         }
 
-        public async Task<AppUser?> GetUserByIdAsync(string userId)
+        public async Task<UserInfoDTO?> GetUserByIdAsync(Guid userId)
         {
-            return await _userManager.FindByIdAsync(userId);
+            var userById = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.ToString());
+            var userDTO = UserInfoDTO.FromAppUser(userById);
+            return userDTO;
         }
 
         public async Task<IdentityResult> CreateUserAsync(AppUser user, string password)
@@ -33,9 +43,9 @@ namespace Domain
             return await _userManager.CreateAsync(user, password);
         }
 
-        public async Task<IdentityResult> DeleteUserAsync(string userId)
+        public async Task<IdentityResult> DeleteUserAsync(Guid userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "User not found" });
@@ -44,7 +54,7 @@ namespace Domain
             return await _userManager.DeleteAsync(user);
         }
 
-        public async Task<ResultUserInfo> GetUserInfoAsync(string userId)
+        public async Task<UserInfoDTO> GetUserInfoAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -57,7 +67,7 @@ namespace Domain
             var role = await _userManager.GetRolesAsync(user);
             var roleName = role.FirstOrDefault();
 
-            return new ResultUserInfo
+            return new UserInfoDTO
             {
                     FirstName = user.FirstName,
                     LastName = user.LastName,
@@ -79,6 +89,7 @@ namespace Domain
             user.LastName = updateRequest.LastName ?? user.LastName;
             user.Age = updateRequest.Age ?? user.Age;
             user.UserName = updateRequest.UserName ?? user.UserName;
+            user.Email = updateRequest.Email ?? user.Email;   
 
             var result = await _userManager.UpdateAsync(user);
 

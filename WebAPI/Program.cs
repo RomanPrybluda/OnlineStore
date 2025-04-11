@@ -1,7 +1,7 @@
 using DAL;
 using Domain;
 using Domain.Services.AuthService;
-using Domain.Services.UserData;
+using Domain.Services.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -122,7 +122,11 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+    
+ 
+
+
+    
 
     var migrator = context.Database.GetService<IMigrator>();
 
@@ -147,8 +151,16 @@ using (var scope = app.Services.CreateScope())
     var productInitializer = new ProductInitializer(context);
     productInitializer.InitializeProducts();
 
-    var appUserInitializer = new AppUserInitializer(context, userManager);
-    appUserInitializer.InitializeUsers();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleInitializer.InitializeRole(roleManager);
+
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+    //await AdminInitializer.InitializeRole(userManager);
+
+    var appUserInitializer = new UserInitializationService(context, userManager);
+    await appUserInitializer.InitializeUsersAsync();
+
+    
 }
 
 app.UseSwagger();
