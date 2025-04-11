@@ -1,16 +1,15 @@
 using DAL;
 using Domain;
 using Domain.Services.AuthService;
-using Domain.Services.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
 
@@ -69,7 +68,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddSwaggerGen(option =>
 builder.Services.Configure<ImageStorageSettings>(
     builder.Configuration.GetSection("ImageStorageSettings"));
 builder.Services.AddScoped<ImageService>();
@@ -78,8 +76,8 @@ builder.Services.AddSingleton(resolver =>
 
 builder.Services.AddSwaggerGen(options =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
-    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Craft Sweets Online Store API", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
         Description = "Please enter a valid token",
@@ -88,7 +86,7 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -111,13 +109,8 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
-        Title = "Craft Sweets Online Store API",
-        Version = "v1"
-    });
-});
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Logging.AddConsole();
 
@@ -134,11 +127,6 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
-    
- 
-
-
-    
 
     var migrator = context.Database.GetService<IMigrator>();
 
@@ -164,15 +152,15 @@ using (var scope = app.Services.CreateScope())
     productInitializer.InitializeProducts();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    await RoleInitializer.InitializeRole(roleManager);
+    var roleInitializer = new RoleInitializer(roleManager);
+    roleInitializer.InitializeRoles();
 
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-    //await AdminInitializer.InitializeRole(userManager);
+    var adminInitializer = new AdminInitializer(userManager);
+    adminInitializer.InitializeAdmin();
 
-    var appUserInitializer = new UserInitializationService(context, userManager);
-    await appUserInitializer.InitializeUsersAsync();
-
-    
+    var appUserInitializer = new AppUserInitializer(context, userManager);
+    appUserInitializer.InitializeUsersAsync();
 }
 
 app.UseStaticFiles();
