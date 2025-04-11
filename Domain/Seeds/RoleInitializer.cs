@@ -1,39 +1,47 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain
 {
     public class RoleInitializer
     {
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public static async Task InitializeRole(RoleManager<IdentityRole> roleManager)
+        public RoleInitializer(RoleManager<IdentityRole> roleManager)
         {
-            if (!await roleManager.RoleExistsAsync(Roles.ADMIN))
+            _roleManager = roleManager;
+        }
+
+        public void InitializeRoles()
+        {
+            if (!_roleManager.RoleExistsAsync(Roles.ADMIN).Result)
             {
-                await roleManager.CreateAsync(
-                    new IdentityRole
-                    {
-                        Name = Roles.ADMIN
-                    }
-                );
+                var result = _roleManager.CreateAsync(new IdentityRole
+                {
+                    Name = Roles.ADMIN
+                }).Result;
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Error while creating role {Roles.ADMIN}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+
+                Console.WriteLine($"Role {Roles.ADMIN} created.");
             }
 
-            if (!await roleManager.RoleExistsAsync(Roles.USER))
+            if (!_roleManager.RoleExistsAsync(Roles.USER).Result)
             {
-                await roleManager.CreateAsync(
-                    new IdentityRole()
-                    {
-                        Name = Roles.USER
-                    }
-                );
-            }
+                var result = _roleManager.CreateAsync(new IdentityRole
+                {
+                    Name = Roles.USER
+                }).Result;
 
+                if (!result.Succeeded)
+                {
+                    throw new Exception($"Error while creating role {Roles.USER}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+
+                Console.WriteLine($"Role {Roles.USER} created.");
+            }
         }
     }
 }
-

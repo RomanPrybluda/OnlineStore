@@ -156,6 +156,7 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
