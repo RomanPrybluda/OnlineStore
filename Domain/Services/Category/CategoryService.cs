@@ -53,8 +53,9 @@ namespace Domain
 
             string imageUrl = string.Empty;
             if (request.Image != null)
+            {
                 imageUrl = await _imageService.UploadImageAsync(request.Image);
-
+            }
 
             var category = CreateCategoryDTO.ToCategory(request, imageUrl);
 
@@ -64,7 +65,9 @@ namespace Domain
             var createdCategory = await _context.Categories.FindAsync(category.Id);
 
             if (createdCategory == null)
+            {
                 throw new CustomException(CustomExceptionType.NotFound, "The category could not be found after creation.");
+            }
 
             var categoryDTO = CategoryDTO.FromCategory(createdCategory);
 
@@ -80,9 +83,10 @@ namespace Domain
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {id}");
 
             string imageUrl = string.Empty;
-
             if (request.Image != null)
+            {
                 imageUrl = await _imageService.UploadImageAsync(request.Image);
+            }
 
             request.UpdateCategory(category, imageUrl);
 

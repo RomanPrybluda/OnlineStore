@@ -1,6 +1,7 @@
-using Domain;
 using Domain.Services.AuthService;
 using Microsoft.AspNetCore.Mvc;
+using DAL;
+using Domain;
 
 namespace WebAPI;
 
@@ -8,11 +9,12 @@ namespace WebAPI;
 [Route("/auth")]
 public class AuthController : ControllerBase
 {
-
+    private readonly OnlineStoreDbContext _dbContext;
     private readonly AuthService _authService;
 
-    public AuthController(AuthService authService)
+    public AuthController(AuthService authService, OnlineStoreDbContext dbContext)
     {
+        _dbContext = dbContext;
         _authService = authService;
     }
 
@@ -55,7 +57,7 @@ public class AuthController : ControllerBase
     [HttpPost("Logout")]
     public IActionResult Logout()
     {
-
+       
         return Ok(new { message = "You have successfully logged out" });
     }
 

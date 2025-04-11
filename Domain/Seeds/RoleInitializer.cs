@@ -1,47 +1,39 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Domain
 {
     public class RoleInitializer
     {
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public RoleInitializer(RoleManager<IdentityRole> roleManager)
+        public static async Task InitializeRole(RoleManager<IdentityRole> roleManager)
         {
-            _roleManager = roleManager;
-        }
-
-        public void InitializeRoles()
-        {
-            if (!_roleManager.RoleExistsAsync(Roles.ADMIN).Result)
+            if (!await roleManager.RoleExistsAsync(Roles.ADMIN))
             {
-                var result = _roleManager.CreateAsync(new IdentityRole
-                {
-                    Name = Roles.ADMIN
-                }).Result;
-
-                if (!result.Succeeded)
-                {
-                    throw new Exception($"Error while creating role {Roles.ADMIN}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                }
-
-                Console.WriteLine($"Role {Roles.ADMIN} created.");
+                await roleManager.CreateAsync(
+                    new IdentityRole
+                    {
+                        Name = Roles.ADMIN
+                    }
+                );
             }
 
-            if (!_roleManager.RoleExistsAsync(Roles.USER).Result)
+            if (!await roleManager.RoleExistsAsync(Roles.USER))
             {
-                var result = _roleManager.CreateAsync(new IdentityRole
-                {
-                    Name = Roles.USER
-                }).Result;
-
-                if (!result.Succeeded)
-                {
-                    throw new Exception($"Error while creating role {Roles.USER}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                }
-
-                Console.WriteLine($"Role {Roles.USER} created.");
+                await roleManager.CreateAsync(
+                    new IdentityRole()
+                    {
+                        Name = Roles.USER
+                    }
+                );
             }
+
         }
     }
 }
+
