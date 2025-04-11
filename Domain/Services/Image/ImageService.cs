@@ -51,7 +51,7 @@ namespace Domain
 
             await File.WriteAllBytesAsync(filePath, compressedContent);
 
-            return $"https://sweetcraftest.tryasp.net/images/{uniqueFileName}";
+            return filePath;
         }
 
         private void ValidateImage(IFormFile file)
