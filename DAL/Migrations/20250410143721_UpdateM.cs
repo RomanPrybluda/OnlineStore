@@ -5,16 +5,15 @@
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class AddSortDescforProduct : Migration
+    public partial class UpdateM : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "SortDescription",
-                table: "Products",
-                type: "nvarchar(200)",
-                maxLength: 200,
+                name: "Password",
+                table: "AspNetUsers",
+                type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
         }
@@ -23,8 +22,8 @@ namespace DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "SortDescription",
-                table: "Products");
+                name: "Password",
+                table: "AspNetUsers");
         }
     }
 }

@@ -1,15 +1,16 @@
 ﻿using DAL;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
-namespace Domain
+namespace Domain.Services.UserService
 {
-    public class AppUserInitializer
+    public class UserInitializationService
     {
         private readonly OnlineStoreDbContext _context;
         private readonly UserManager<AppUser> _userManager;
-        private static readonly Random _random = new Random();
+        private static readonly Random _random = new();
 
-        private readonly int needsUsersQuantity = 50;
+        private const int NeedsUsersQuantity = 50;
 
         private static readonly string[] FirstNames =
         {
@@ -23,47 +24,52 @@ namespace Domain
             "Kennedy", "Lopez", "Miller", "Nelson", "Owens", "Parker", "Quinn", "Roberts", "Smith", "Thompson"
         };
 
-        public AppUserInitializer(OnlineStoreDbContext context, UserManager<AppUser> userManager)
+        public UserInitializationService(OnlineStoreDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
-        public void InitializeUsers()
+        public async Task InitializeUsersAsync()
         {
-            var existingUsersCount = _context.Users.Count();
+            var existingUsersCount = await _context.Users.CountAsync();
 
-            if (existingUsersCount < needsUsersQuantity)
+            if (existingUsersCount >= NeedsUsersQuantity)
             {
-                for (int i = 0; i < (needsUsersQuantity - existingUsersCount); i++)
+                Console.WriteLine("🟡 Достаточное количество пользователей уже существует.");
+                return;
+            }
+
+            var usersToCreate = NeedsUsersQuantity - existingUsersCount;
+
+            for (int i = 0; i < usersToCreate; i++)
+            {
+                var firstName = FirstNames[_random.Next(FirstNames.Length)];
+                var lastName = LastNames[_random.Next(LastNames.Length)];
+                var email = $"{firstName.ToLower()}.{lastName.ToLower()}{_random.Next(1000, 9999)}@example.com";
+                var username = $"{firstName.ToLower()}{lastName.ToLower()}{_random.Next(10, 99)}";
+
+                var user = new AppUser
                 {
-                    var firstName = FirstNames[_random.Next(FirstNames.Length)];
-                    var lastName = LastNames[_random.Next(LastNames.Length)];
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Age = _random.Next(18, 60),
+                    Email = email,
+                    UserName = username,
+                    EmailConfirmed = true
+                };
 
-                    var user = new AppUser
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        FirstName = firstName,
-                        LastName = lastName,
-                        Age = _random.Next(18, 60),
-                        Email = $"{firstName.ToLower()}.{lastName.ToLower()}{_random.Next(1000, 9999)}@example.com",
-                        UserName = $"{firstName.ToLower()}{lastName.ToLower()}{_random.Next(10, 99)}",
-                        EmailConfirmed = true
-                    };
+                var password = "User@123";
 
-                    var password = "User@123";
+                var result = await _userManager.CreateAsync(user, password);
 
-                    var result = _userManager.CreateAsync(user, password).Result;
-                    if (!result.Succeeded)
-                    {
-                        Console.WriteLine($"Failed to create user {user.Email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                        continue;
-                    }
-
-                    Console.WriteLine($"Created user: {user.Email}");
+                if (!result.Succeeded)
+                {
+                    Console.WriteLine($"❌ Ошибка при создании пользователя {email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    continue;
                 }
 
-                _context.SaveChanges();
+                Console.WriteLine($"✅ Создан пользователь: {email}");
             }
         }
     }
