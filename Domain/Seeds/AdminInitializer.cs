@@ -1,23 +1,28 @@
 ﻿using DAL;
+using Domain.Services.AuthService;
 using Microsoft.AspNetCore.Identity;
+using System.Linq;
+
 
 namespace Domain
 {
     public class AdminInitializer
     {
-        private readonly UserManager<AppUser> _userManager;
 
-        public AdminInitializer(UserManager<AppUser> userManager)
+        private readonly AuthService _authService;
+
+        public AdminInitializer(AuthService authService) 
         {
-            _userManager = userManager;
+            _authService = authService;
         }
 
-        public void InitializeAdmin()
+        public static async Task InitializeRole(UserManager<AppUser> userManager)
         {
+
             var adminEmail = "Admin@gmail.com";
             var adminPassword = "700402_QweAsdZxc";
 
-            var adminCurrent = _userManager.FindByEmailAsync(adminEmail).Result;
+            var adminCurrent = await userManager.FindByEmailAsync(adminEmail);
 
             if (adminCurrent == null)
             {
@@ -30,21 +35,33 @@ namespace Domain
                     UserName = "AdminName",
                     Password = adminPassword
                 };
-
                 var admin = RegisterDTO.FromRegisterDTO(registerDto);
 
-                var result = _userManager.CreateAsync(admin, adminPassword).Result;
+                var result = await userManager.CreateAsync(admin,adminPassword);
+
                 if (!result.Succeeded)
                 {
                     throw new Exception();
                 }
 
-                result = _userManager.AddToRoleAsync(admin, Roles.ADMIN).Result;
+                result = await userManager.AddToRoleAsync(admin, Roles.ADMIN);
+
+                var roles = await userManager.GetRolesAsync(admin);
                 if (!result.Succeeded)
                 {
                     throw new Exception();
                 }
+
             }
+
         }
     }
 }
+    
+    
+
+
+ 
+    
+
+

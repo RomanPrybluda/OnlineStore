@@ -1,15 +1,16 @@
 ﻿using DAL;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
-namespace Domain
+namespace Domain.Services.UserService
 {
-    public class AppUserInitializer
+    public class UserInitializationService
     {
         private readonly OnlineStoreDbContext _context;
         private readonly UserManager<AppUser> _userManager;
         private static readonly Random _random = new();
 
-        private const int NEEDS_USER_QUANTITY = 50;
+        private const int NeedsUsersQuantity = 50;
 
         private static readonly string[] FirstNames =
         {
@@ -23,43 +24,52 @@ namespace Domain
             "Kennedy", "Lopez", "Miller", "Nelson", "Owens", "Parker", "Quinn", "Roberts", "Smith", "Thompson"
         };
 
-        public AppUserInitializer(OnlineStoreDbContext context, UserManager<AppUser> userManager)
+        public UserInitializationService(OnlineStoreDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
-        public void InitializeUsersAsync()
+        public async Task InitializeUsersAsync()
         {
-            var existingUsersCount = _context.AppUsers.Count();
+            var existingUsersCount = await _context.Users.CountAsync();
 
-            if (existingUsersCount < NEEDS_USER_QUANTITY)
+            if (existingUsersCount >= NeedsUsersQuantity)
             {
+                Console.WriteLine("🟡 Достаточное количество пользователей уже существует.");
+                return;
+            }
 
-                for (int i = 0; i < (NEEDS_USER_QUANTITY - existingUsersCount); i++)
+            var usersToCreate = NeedsUsersQuantity - existingUsersCount;
+
+            for (int i = 0; i < usersToCreate; i++)
+            {
+                var firstName = FirstNames[_random.Next(FirstNames.Length)];
+                var lastName = LastNames[_random.Next(LastNames.Length)];
+                var email = $"{firstName.ToLower()}.{lastName.ToLower()}{_random.Next(1000, 9999)}@example.com";
+                var username = $"{firstName.ToLower()}{lastName.ToLower()}{_random.Next(10, 99)}";
+
+                var user = new AppUser
                 {
-                    var firstName = FirstNames[_random.Next(FirstNames.Length)];
-                    var lastName = LastNames[_random.Next(LastNames.Length)];
-                    var email = $"{firstName.ToLower()}.{lastName.ToLower()}{_random.Next(1000, 9999)}@example.com";
-                    var username = $"{firstName.ToLower()}{lastName.ToLower()}{_random.Next(10, 99)}";
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Age = _random.Next(18, 60),
+                    Email = email,
+                    UserName = username,
+                    EmailConfirmed = true
+                };
 
-                    var user = new AppUser
-                    {
-                        FirstName = firstName,
-                        LastName = lastName,
-                        Age = _random.Next(18, 60),
-                        Email = email,
-                        UserName = username,
-                        EmailConfirmed = true
-                    };
+                var password = "User@123";
 
-                    var password = "User@123";
+                var result = await _userManager.CreateAsync(user, password);
 
-                    _userManager.CreateAsync(user, password);
-
+                if (!result.Succeeded)
+                {
+                    Console.WriteLine($"❌ Ошибка при создании пользователя {email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    continue;
                 }
 
-                _context.SaveChanges();
+                Console.WriteLine($"✅ Создан пользователь: {email}");
             }
         }
     }

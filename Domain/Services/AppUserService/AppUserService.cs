@@ -1,65 +1,110 @@
 ﻿using DAL;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SendGrid.Helpers.Errors.Model;
 
 namespace Domain
 {
     public class AppUserService
     {
-        private readonly OnlineStoreDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AppUserService(OnlineStoreDbContext context)
+        public AppUserService(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            _context = context;
+
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public async Task<IEnumerable<UserInfoDTO>> GetAllUsersAsync()
+        public async Task<List<UserInfoDTO>> GetAllUsersAsync()
         {
-            var users = await _context.Users.ToListAsync();
+            var users =  await _userManager.Users.ToListAsync();
 
-            if (!users.Any())
-                throw new CustomException(CustomExceptionType.NotFound, "No categories found");
+            if (!users.Any()) 
+            {
+                throw new NotFoundException();
+            }
 
             var usersDTOs = users.Select(UserInfoDTO.FromAppUser).ToList();
             return usersDTOs;
 
         }
 
-        public async Task<UserInfoDTO> GetUserByIdAsync(Guid id)
+        public async Task<UserInfoDTO?> GetUserByIdAsync(Guid userId)
         {
-            var userById = await _context.Users.FirstOrDefaultAsync(u => u.Id == id.ToString());
-
-            if (userById == null)
-                throw new CustomException(CustomExceptionType.NotFound, $"User not found with ID {id}");
-
+            var userById = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.ToString());
             var userDTO = UserInfoDTO.FromAppUser(userById);
-
             return userDTO;
         }
 
-        public async Task DeleteUserAsync(Guid id)
+        public async Task<IdentityResult> CreateUserAsync(AppUser user, string password)
         {
-            var user = await _context.Users.FindAsync(id.ToString());
-
-            if (user == null)
-                throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {id}");
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            return await _userManager.CreateAsync(user, password);
         }
 
-        public async Task<UserInfoDTO> UpdateUserAsync(string id, UserUpdateDTO updateRequest)
+        public async Task<IdentityResult> DeleteUserAsync(Guid userId)
         {
-            var user = await _context.Users.FindAsync(id);
-
+            var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
-                throw new CustomException(CustomExceptionType.NotFound, $"User not found with ID:{id}.");
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "User not found" });
+            }
 
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            return await _userManager.DeleteAsync(user);
+        }
 
-            var userDTO = UserInfoDTO.FromAppUser(user);
+        public async Task<UserInfoDTO> GetUserInfoAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
 
-            return userDTO;
+            if (user is null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+
+            var role = await _userManager.GetRolesAsync(user);
+            var roleName = role.FirstOrDefault();
+
+            return new UserInfoDTO
+            {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Age = user.Age,
+                    Id  = user.Id,
+                    UserName = user.UserName
+            };
+        }
+
+        public async Task<UserUpdateResult> UserUpdateAsync(string userId, UserUpdateRequest updateRequest)
+        {
+            var user =  await _userManager.FindByIdAsync(userId);
+            if(user is null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            user.FirstName = updateRequest.FirstName ?? user.FirstName;
+            user.LastName = updateRequest.LastName ?? user.LastName;
+            user.Age = updateRequest.Age ?? user.Age;
+            user.UserName = updateRequest.UserName ?? user.UserName;
+            user.Email = updateRequest.Email ?? user.Email;   
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException("Error Update");
+            }
+
+            return new UserUpdateResult
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Age = user.Age,
+                UserName = user.UserName
+            };
         }
     }
 }

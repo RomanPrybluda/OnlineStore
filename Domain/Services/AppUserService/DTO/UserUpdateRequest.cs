@@ -1,7 +1,7 @@
 ﻿
 namespace Domain
 {
-    public class UserUpdateDTO
+    public class UserUpdateRequest
     {
         public string? FirstName { get; set; }
 
