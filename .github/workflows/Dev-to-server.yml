@@ -3,7 +3,7 @@ name: Dev-to-server
 on:
   push:
     branches:
-      - dev
+      - feature/image-service-refact
   workflow_dispatch: {}
 
 jobs:
