@@ -3,7 +3,7 @@ name: Dev-to-server
 on:
   push:
     branches:
-      - feature/image-service-refact
+      - dev
   workflow_dispatch: {}
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
           if ($jsonContent.PSObject.Properties.Name -contains "ConnectionStrings" -and
               $jsonContent.ConnectionStrings.PSObject.Properties.Name -contains "Default") {    
 
-              $jsonContent.ConnectionStrings.Default = "${{ secrets.SWEET_CRAFT_TS_CONNECTION_STRING }}"
+              $jsonContent.ConnectionStrings.Default = "${{ secrets.CRAFT_SWEETS_CONNECTION_STRING }}"
       
               $jsonContent | ConvertTo-Json -Depth 10 | Set-Content $appSettingsPath -Encoding UTF8
       
@@ -59,7 +59,7 @@ jobs:
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
-          website-name: ${{ secrets.SWEET_CRAFT_TS_WEBSITE_NAME }}
-          server-computer-name: ${{ secrets.SWEET_CRAFT_TS_SERVER_COMPUTER_NAME }}
-          server-username: ${{ secrets.SWEET_CRAFT_TS_SERVER_USERNAME }}
-          server-password: ${{ secrets.SWEET_CRAFT_TS_SERVER_PASSWORD }}
+          website-name: ${{ secrets.CRAFT_SWEETS_WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.CRAFT_SWEETS_SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.CRAFT_SWEETS_SERVER_USER_NAME }}
+          server-password: ${{ secrets.CRAFT_SWEETS_SERVER_PASSWORD }}
