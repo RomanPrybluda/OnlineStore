@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
 
@@ -69,6 +70,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddSwaggerGen(option =>
+builder.Services.Configure<ImageStorageSettings>(
+    builder.Configuration.GetSection("ImageStorageSettings"));
+builder.Services.AddScoped<ImageService>();
+builder.Services.AddSingleton(resolver =>
+    resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
+
+builder.Services.AddSwaggerGen(options =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -103,6 +111,10 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+        Title = "Craft Sweets Online Store API",
+        Version = "v1"
+    });
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -163,16 +175,21 @@ using (var scope = app.Services.CreateScope())
     
 }
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseStaticFiles();
 
 app.UseCors("AllowAll");
+
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
