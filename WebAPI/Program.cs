@@ -32,7 +32,15 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddHttpClient();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Craft Sweets Online Store API",
+        Version = "v1"
+    });
+});
 
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 {
@@ -53,16 +61,6 @@ builder.Services.Configure<ImageStorageSettings>(
 builder.Services.AddScoped<ImageService>();
 builder.Services.AddSingleton(resolver =>
     resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "Craft Sweets Online Store API",
-        Version = "v1"
-    });
-});
-
 
 builder.Logging.AddConsole();
 
@@ -118,6 +116,8 @@ app.UseSwaggerUI();
 //}
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
