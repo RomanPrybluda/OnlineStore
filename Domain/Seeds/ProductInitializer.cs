@@ -40,18 +40,12 @@ namespace Domain
                         ImageUrl = imageUrl,
                         CategoryId = category.Id,
                         Category = category,
-                    };
-
-                    var productDetails = new ProductDetails
-                    {
-                        ProductId = product.Id,
                         Sku = $"SKU-{Guid.NewGuid()}",
-                        Attributes = $"Attributes for Product {i + 1}",
                         StockQuantity = _random.Next(1, 100)
                     };
 
                     _context.Products.Add(product);
-                    _context.ProductDetails.Add(productDetails);
+
                 }
 
                 _context.SaveChanges();

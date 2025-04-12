@@ -12,7 +12,7 @@
 
         public AppUser AppUser { get; set; } = null!;
 
-        public int Rating { get; set; }
+        public int ReviewRating { get; set; }
 
         public string Comment { get; set; } = string.Empty;
 

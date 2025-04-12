@@ -27,7 +27,7 @@ namespace DAL
                 .HasPrincipalKey(u => u.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(r => r.Rating)
+            builder.Property(r => r.ReviewRating)
                 .IsRequired()
                 .HasDefaultValue(1);
 

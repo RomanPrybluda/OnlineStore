@@ -5,9 +5,9 @@ namespace Domain
 {
     public class ReviewService
     {
-        private readonly CraftSweetsDbContext _context;
+        private readonly OnlineStoreDbContext _context;
 
-        public ReviewService(CraftSweetsDbContext context)
+        public ReviewService(OnlineStoreDbContext context)
         {
             _context = context;
         }
