@@ -1,6 +1,5 @@
 using DAL;
 using Domain;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -33,7 +32,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddIdentityCore<AppUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<OnlineStoreDbContext>();
+//builder.Services.AddIdentityCore<AppUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<OnlineStoreDbContext>();
 
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 {
@@ -44,26 +43,17 @@ builder.Logging.AddConsole();
 
 var app = builder.Build();
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    try
-//    {
-//        var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
 
-//        context.Database.Migrate();
+    context.Database.Migrate();
 
-//        var categoryInitializer = new CategoryInitializer(context);
-//        categoryInitializer.InitializeCategories();
-
-//        var productInitializer = new ProductInitializer(context);
-//        productInitializer.InitializeProducts();
-//    }
-//    catch (Exception ex)
-//    {
-//        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-//        logger.LogError(ex, "An unexpected error occurred during database initialization.");
-//    }
-//}
+    var categoryInitializer = new CategoryInitializer(context);
+    categoryInitializer.InitializeCategories();
+    var productInitializer = new ProductInitializer(context);
+    productInitializer.InitializeProducts();
+}
 
 //if (app.Environment.IsDevelopment())
 //{
