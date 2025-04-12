@@ -44,26 +44,26 @@ builder.Logging.AddConsole();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    try
-    {
-        var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
+//using (var scope = app.Services.CreateScope())
+//{
+//    try
+//    {
+//        var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
 
-        context.Database.Migrate();
+//        context.Database.Migrate();
 
-        var categoryInitializer = new CategoryInitializer(context);
-        categoryInitializer.InitializeCategories();
+//        var categoryInitializer = new CategoryInitializer(context);
+//        categoryInitializer.InitializeCategories();
 
-        var productInitializer = new ProductInitializer(context);
-        productInitializer.InitializeProducts();
-    }
-    catch (Exception ex)
-    {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An unexpected error occurred during database initialization.");
-    }
-}
+//        var productInitializer = new ProductInitializer(context);
+//        productInitializer.InitializeProducts();
+//    }
+//    catch (Exception ex)
+//    {
+//        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+//        logger.LogError(ex, "An unexpected error occurred during database initialization.");
+//    }
+//}
 
 //if (app.Environment.IsDevelopment())
 //{
