@@ -3,7 +3,7 @@ name: Dev-to-server
 on:
   push:
     branches:
-      - feature/product-search-filt-sort-pag
+      - dev
   workflow_dispatch: {}
 
 jobs:
