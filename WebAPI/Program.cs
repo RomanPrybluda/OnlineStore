@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "Craft Sweets Online Store API 2",
+        Title = "Craft Sweets Online Store API",
         Version = "v1"
     });
 });
@@ -69,6 +69,12 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 //}
+
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Craft Sweets API v1");
+    options.DocumentTitle = "Craft Sweets";
+});
 
 app.UseStaticFiles();
 
