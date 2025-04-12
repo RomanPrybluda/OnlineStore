@@ -32,13 +32,5 @@ namespace WebAPI
             return Ok(product);
         }
 
-        [HttpDelete]
-        [Route("{id:Guid}")]
-        public async Task<ActionResult> DeleteShipAsync([Required] Guid id)
-        {
-            await _productService.DeleteProductAsync(id);
-            return NoContent();
-        }
-
     }
 }
