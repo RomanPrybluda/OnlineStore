@@ -19,6 +19,16 @@ if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException("Connection string is not set. Check environment variables, appsettings.json, or secrets.");
 }
 
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Craft Sweets Online Store API 2",
+        Version = "v1"
+    });
+});
+
+
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 
@@ -30,7 +40,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddHttpClient();
-builder.Services.AddSwaggerGen();
 
 //builder.Services.AddIdentityCore<AppUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<OnlineStoreDbContext>();
 
