@@ -30,5 +30,7 @@
 
         public List<Review> Reviews { get; set; } = new();
 
+        public List<AppUser> FavoritedByUsers { get; set; } = new();
+
     }
 }
