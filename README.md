@@ -32,7 +32,9 @@ Before you begin, ensure you have the following installed:
 
 2. Configure the connection string:
 Set your local database connection string in either appsettings.json or using the Secret Manager:
+```
 dotnet user-secrets set "ConnectionStrings:LocalConnectionString" "Server=YOUR_SERVER_NAME;Database=CraftSweetDB;Trusted_Connection=True;Encrypt=False;"
+```
 
 3. Run the application:
 ```
