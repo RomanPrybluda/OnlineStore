@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
-<<<<<<<< HEAD:DAL/Migrations/20250412203406_InitialMigration.Designer.cs
-    [Migration("20250412203406_InitialMigration")]
+    [Migration("20250321070308_InitialMigration")]
     partial class InitialMigration
-========
-    [Migration("20250403214442_AddSortDescforProduct")]
-    partial class AddSortDescforProduct
->>>>>>>> feature/product-search-filt-sort-pag:DAL/Migrations/20250403214442_AddSortDescforProduct.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -232,10 +227,6 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("ImageUrl")
-<<<<<<<< HEAD:DAL/Migrations/20250412203406_InitialMigration.Designer.cs
-                        .IsRequired()
-========
->>>>>>>> feature/product-search-filt-sort-pag:DAL/Migrations/20250403214442_AddSortDescforProduct.Designer.cs
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -262,11 +253,6 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("SortDescription")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("StockQuantity")
                         .ValueGeneratedOnAdd()
@@ -303,13 +289,7 @@ namespace DAL.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ReviewRating")
-<<<<<<<< HEAD:DAL/Migrations/20250412203406_InitialMigration.Designer.cs
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
-========
                         .HasColumnType("int");
->>>>>>>> feature/product-search-filt-sort-pag:DAL/Migrations/20250403214442_AddSortDescforProduct.Designer.cs
 
                     b.Property<string>("UserId")
                         .IsRequired()

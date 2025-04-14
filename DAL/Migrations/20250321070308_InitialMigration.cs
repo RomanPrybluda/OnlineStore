@@ -201,14 +201,8 @@ namespace DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-<<<<<<<< HEAD:DAL/Migrations/20250412203406_InitialMigration.cs
-                    SortDescription = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-========
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
->>>>>>>> feature/product-search-filt-sort-pag:DAL/Migrations/20250321070308_InitialMigration.cs
                     Sku = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false, defaultValue: 0.0),
                     TotalVotes = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
@@ -281,13 +275,8 @@ namespace DAL.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-<<<<<<<< HEAD:DAL/Migrations/20250412203406_InitialMigration.cs
-                    ReviewRating = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    Comment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-========
                     ReviewRating = table.Column<int>(type: "int", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
->>>>>>>> feature/product-search-filt-sort-pag:DAL/Migrations/20250321070308_InitialMigration.cs
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
