@@ -18,5 +18,7 @@ namespace DAL
         public List<Review> Reviews { get; set; } = new();
 
         public List<Order> Orders { get; set; } = new();
+
+        public List<Product> FavoriteProducts { get; set; } = new();
     }
 }
