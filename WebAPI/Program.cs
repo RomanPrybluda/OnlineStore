@@ -1,5 +1,6 @@
 using DAL;
 using Domain;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -40,8 +41,6 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddHttpClient();
 
-builder.Services.AddIdentityCore<AppUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<OnlineStoreDbContext>();
-
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 {
     options.UseSqlServer(connectionString, b => b.MigrationsAssembly("DAL"));
@@ -55,16 +54,6 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "Swee Craft Online Store API",
-        Version = "v1"
-    });
-});
-
 
 builder.Logging.AddConsole();
 
@@ -102,12 +91,12 @@ using (var scope = app.Services.CreateScope())
 
     var categoryInitializer = new CategoryInitializer(context);
     categoryInitializer.InitializeCategories();
+
     var productInitializer = new ProductInitializer(context);
     productInitializer.InitializeProducts();
 
     var appUserInitializer = new AppUserInitializer(context, userManager);
     appUserInitializer.InitializeUsers();
-
 }
 
 //if (app.Environment.IsDevelopment())

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
-    [Migration("20250403214442_AddSortDescforProduct")]
-    partial class AddSortDescforProduct
+    [Migration("20250414100128_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
