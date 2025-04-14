@@ -19,14 +19,14 @@ namespace WebAPI
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddToFavorites([FromForm][Required] Guid userId, [Required] Guid productId)
+        public async Task<ActionResult> AddToFavorites([FromForm][Required] Guid userId, [FromForm][Required] Guid productId)
         {
             var favoriteProduct = await _favoriteProductService.AddToFavoritesAsync(userId, productId);
             return Ok(favoriteProduct);
         }
 
         [HttpDelete]
-        public async Task<ActionResult> RemoveFromFavorites([FromForm][Required] Guid userId, [Required] Guid productId)
+        public async Task<ActionResult> RemoveFromFavorites([FromForm][Required] Guid userId, [FromForm][Required] Guid productId)
         {
             await _favoriteProductService.RemoveFromFavoritesAsync(userId, productId);
             return NoContent();
