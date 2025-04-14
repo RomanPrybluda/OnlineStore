@@ -51,8 +51,8 @@ Visit https://localhost:5001/swagger to test API endpoints.
 ### 🧱 Project Structure
 ```
 craft-sweets/
-├── WebAPI/        # Web API project (controllers, middleware, services)
-├── Domain/        # Domain models and business logic
+├── WebAPI/        # Web API project (controllers, middleware)
+├── Domain/        # Domain models and business logic (Services, DTOs, Seeds, CustomExceptions)
 ├── DAL/           # Data Access Layer (DbContext, Migrations)
 └── README.md      # Project documentation
 ```
