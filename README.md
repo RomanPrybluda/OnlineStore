@@ -137,6 +137,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙋‍♂️ Author
 
-**Your Name** — [@your-github](https://github.com/your-github)
+**Your Name** — [@RomanPrybluda](https://github.com/RomanPrybluda)
 
 Feel free to open issues or submit pull requests 💡
