@@ -12,8 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
+<<<<<<<< HEAD:DAL/Migrations/20250412203406_InitialMigration.Designer.cs
     [Migration("20250412203406_InitialMigration")]
     partial class InitialMigration
+========
+    [Migration("20250403214442_AddSortDescforProduct")]
+    partial class AddSortDescforProduct
+>>>>>>>> feature/product-search-filt-sort-pag:DAL/Migrations/20250403214442_AddSortDescforProduct.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -144,10 +149,15 @@ namespace DAL.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -222,7 +232,10 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("ImageUrl")
+<<<<<<<< HEAD:DAL/Migrations/20250412203406_InitialMigration.Designer.cs
                         .IsRequired()
+========
+>>>>>>>> feature/product-search-filt-sort-pag:DAL/Migrations/20250403214442_AddSortDescforProduct.Designer.cs
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -280,7 +293,6 @@ namespace DAL.Migrations
                         .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -291,9 +303,13 @@ namespace DAL.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ReviewRating")
+<<<<<<<< HEAD:DAL/Migrations/20250412203406_InitialMigration.Designer.cs
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1);
+========
+                        .HasColumnType("int");
+>>>>>>>> feature/product-search-filt-sort-pag:DAL/Migrations/20250403214442_AddSortDescforProduct.Designer.cs
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -305,7 +321,10 @@ namespace DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", t =>
+                        {
+                            t.HasCheckConstraint("CK_Review_Rating", "[ReviewRating] BETWEEN 1 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
