@@ -35,6 +35,12 @@ namespace DAL
                 .WithOne()
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasMany(u => u.FavoriteProducts)
+                .WithMany(p => p.FavoritedByUsers)
+                .UsingEntity(j => j.ToTable("FavoriteProducts"));
+
         }
     }
 }
