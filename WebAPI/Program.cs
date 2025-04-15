@@ -51,6 +51,7 @@ builder.Services.AddIdentityCore<AppUser>()
     .AddEntityFrameworkStores<OnlineStoreDbContext>();
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<FavoriteProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
