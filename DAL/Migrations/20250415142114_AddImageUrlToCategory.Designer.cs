@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
-    [Migration("20250414100128_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250415142114_AddImageUrlToCategory")]
+    partial class AddImageUrlToCategory
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AppUserProduct", b =>
+                {
+                    b.Property<Guid>("FavoriteProductsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FavoritedByUsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("FavoriteProductsId", "FavoritedByUsersId");
+
+                    b.HasIndex("FavoritedByUsersId");
+
+                    b.ToTable("FavoriteProducts", (string)null);
+                });
 
             modelBuilder.Entity("DAL.AppUser", b =>
                 {
@@ -148,6 +163,10 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -443,6 +462,21 @@ namespace DAL.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("AppUserProduct", b =>
+                {
+                    b.HasOne("DAL.Product", null)
+                        .WithMany()
+                        .HasForeignKey("FavoriteProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("FavoritedByUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DAL.CartItem", b =>
