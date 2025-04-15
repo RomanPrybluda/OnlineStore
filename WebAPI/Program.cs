@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
 
@@ -56,6 +57,12 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
 
+builder.Services.Configure<ImageStorageSettings>(
+    builder.Configuration.GetSection("ImageStorageSettings"));
+builder.Services.AddScoped<ImageService>();
+builder.Services.AddSingleton(resolver =>
+    resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
+
 builder.Logging.AddConsole();
 
 builder.Services.AddCors(options =>
@@ -100,6 +107,8 @@ using (var scope = app.Services.CreateScope())
     appUserInitializer.InitializeUsers();
 }
 
+app.UseCors("AllowAll");
+
 //if (app.Environment.IsDevelopment())
 //{
 app.UseSwagger();
@@ -110,9 +119,9 @@ app.UseSwaggerUI(options =>
 });
 //}
 
-app.UseCors("AllowAll");
-
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();

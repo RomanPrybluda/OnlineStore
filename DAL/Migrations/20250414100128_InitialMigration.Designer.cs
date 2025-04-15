@@ -12,7 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
+<<<<<<<< HEAD:DAL/Migrations/20250414100128_InitialMigration.Designer.cs
     [Migration("20250414100128_InitialMigration")]
+========
+    [Migration("20250411143304_InitialMigration")]
+>>>>>>>> feature/image-service-refact:DAL/Migrations/20250411143304_InitialMigration.Designer.cs
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -148,6 +152,10 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
