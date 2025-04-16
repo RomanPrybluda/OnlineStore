@@ -49,7 +49,15 @@ namespace Domain
                     var productDescription = $"Delicious {productName} for your sweet cravings!";
                     var sortDescription = productDescription.Length > 50 ? productDescription.Substring(0, 50) + "..." : productDescription;
                     var productPrice = (decimal)(_random.NextDouble() * (1000 - 10) + 10);
-                    var imageUrl = $"https://example.com/images/product{i + 1}.jpg";
+                    var imageName = $"mainImageName{i + 1}.webp";
+                    var baseImageName = $"imageName{i + 1}";
+                    var imageExtension = ".webp";
+                    var imageNames = new List<string>
+                    {
+                        $"{baseImageName}-1{imageExtension}",
+                        $"{baseImageName}-2{imageExtension}",
+                        $"{baseImageName}-3{imageExtension}"
+                    };
                     var sku = $"SKU-{Guid.NewGuid()}";
                     var stockQuantity = _random.Next(1, 100);
 
@@ -60,7 +68,8 @@ namespace Domain
                         Description = productDescription,
                         SortDescription = sortDescription,
                         Price = productPrice,
-                        ImageUrl = imageUrl,
+                        MainImageBaseName = imageName,
+                        ImageBaseNames = imageNames,
                         Sku = sku,
                         StockQuantity = stockQuantity,
                         IsActive = _random.Next(0, 2) == 1,
