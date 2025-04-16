@@ -7,10 +7,12 @@ namespace Domain
     {
 
         private readonly OnlineStoreDbContext _context;
+        private readonly ImageService _imageService;
 
-        public ProductService(OnlineStoreDbContext context)
+        public ProductService(OnlineStoreDbContext context, ImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<PagedResponseDTO<ProductDTO>> GetProductsListAsync(ProductFilterDTO filter)
@@ -94,7 +96,15 @@ namespace Domain
             if (category == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {request.CategoryId}");
 
-            var product = CreateProductDTO.ToProduct(request);
+            string mainImageBaseName = string.Empty;
+            if (request.MainProductImage != null)
+                mainImageBaseName = await _imageService.UploadImageAsync(request.MainProductImage);
+
+            List<string> imageBaseNames = new();
+            if (request.ProductImages != null)
+                imageBaseNames = await _imageService.UploadMultipleImagesAsync(request.ProductImages);
+
+            var product = CreateProductDTO.ToProduct(request, mainImageBaseName, imageBaseNames);
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -121,7 +131,15 @@ namespace Domain
             if (category == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {request.CategoryId}");
 
-            request.UpdateProduct(product);
+            string mainImageBaseName = string.Empty;
+            if (request.MainProductImage != null)
+                mainImageBaseName = await _imageService.UploadImageAsync(request.MainProductImage);
+
+            List<string> imageBaseNames = new();
+            if (request.ProductImages != null)
+                imageBaseNames = await _imageService.UploadMultipleImagesAsync(request.ProductImages);
+
+            request.UpdateProduct(product, mainImageBaseName, imageBaseNames);
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();

@@ -12,7 +12,9 @@
 
         public decimal Price { get; set; }
 
-        public string? ImageUrl { get; set; }
+        public string? MainImageBaseName { get; set; } = string.Empty;
+
+        public List<string>? ImageBaseNames { get; set; }
 
         public string Sku { get; set; } = string.Empty;
 
