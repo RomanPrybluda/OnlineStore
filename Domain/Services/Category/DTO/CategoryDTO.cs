@@ -10,7 +10,7 @@ namespace Domain
 
         public string Description { get; set; } = string.Empty;
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string ImageName { get; set; } = string.Empty;
 
         public static CategoryDTO FromCategory(Category category)
         {
@@ -19,7 +19,7 @@ namespace Domain
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
-                ImageUrl = category.ImageBaseName
+                ImageName = category.ImageBaseName
             };
         }
     }
