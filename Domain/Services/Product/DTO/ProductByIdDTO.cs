@@ -34,7 +34,7 @@ namespace Domain
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                ImageUrl = product.ImageUrl ?? string.Empty,
+                ImageUrl = product.MainImageBaseName ?? string.Empty,
                 Sku = product.Sku,
                 Rating = product.Rating,
                 StockQuantity = product.StockQuantity,

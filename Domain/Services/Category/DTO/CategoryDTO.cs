@@ -19,7 +19,7 @@ namespace Domain
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
-                ImageUrl = category.ImageUrl
+                ImageUrl = category.ImageBaseName
             };
         }
     }

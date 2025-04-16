@@ -11,14 +11,14 @@ namespace Domain
 
         public IFormFile Image { get; set; }
 
-        public static Category ToCategory(CreateCategoryDTO request, string imageUrl)
+        public static Category ToCategory(CreateCategoryDTO request, string imageBaseName)
         {
             return new Category
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 Description = request.Description,
-                ImageUrl = imageUrl
+                ImageBaseName = imageBaseName
             };
         }
     }

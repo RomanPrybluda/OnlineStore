@@ -25,7 +25,7 @@ namespace Domain
                 SortDescription = product.SortDescription,
                 IsActive = product.IsActive,
                 Price = product.Price,
-                ImageUrl = product.ImageUrl
+                ImageUrl = product.MainImageBaseName
             };
         }
     }

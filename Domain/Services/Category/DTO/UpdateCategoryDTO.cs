@@ -15,7 +15,7 @@ namespace Domain
         {
             category.Name = Name ?? category.Name;
             category.Description = Description ?? category.Description;
-            category.ImageUrl = imageUrl;
+            category.ImageBaseName = imageUrl;
         }
 
     }
