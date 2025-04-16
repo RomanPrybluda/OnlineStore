@@ -27,7 +27,7 @@ namespace DAL
                 .IsRequired()
                 .HasMaxLength(200);
 
-            builder.Property(c => c.ImageUrl)
+            builder.Property(c => c.ImageBaseName)
                 .IsRequired();
         }
     }

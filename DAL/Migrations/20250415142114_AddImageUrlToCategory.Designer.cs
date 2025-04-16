@@ -164,7 +164,7 @@ namespace DAL.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("ImageBaseName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -245,7 +245,7 @@ namespace DAL.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("ImageBaseName")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 

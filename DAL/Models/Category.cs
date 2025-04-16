@@ -8,7 +8,7 @@
 
         public string Description { get; set; } = string.Empty;
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string ImageBaseName { get; set; } = string.Empty;
 
         public List<Product> Products { get; set; } = new();
     }
