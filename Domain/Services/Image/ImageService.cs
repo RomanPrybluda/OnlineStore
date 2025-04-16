@@ -19,15 +19,15 @@ namespace Domain
 
         public async Task<List<string>> UploadMultipleImagesAsync(List<IFormFile> imageFiles)
         {
-            var names = new List<string>();
+            var baseFileNames = new List<string>();
 
             foreach (var imageFile in imageFiles)
             {
-                string name = await UploadImageAsync(imageFile);
-                names.Add(name);
+                string baseFileName = await UploadImageAsync(imageFile);
+                baseFileNames.Add(baseFileName);
             }
 
-            return names;
+            return baseFileNames;
         }
 
         public async Task<string> UploadImageAsync(IFormFile imageFile)
