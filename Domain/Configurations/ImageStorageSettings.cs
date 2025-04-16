@@ -2,7 +2,6 @@
 {
     public class ImageStorageSettings
     {
-        public string ContentType { get; set; }
 
         public string MaxAvatarImageFileSize { get; set; }
 
@@ -10,25 +9,19 @@
 
         public int MaxImageFileSizeInBytes { get; set; }
 
+        public string MinProductFileSize { get; set; }
+
+        public int MinImageFileSizeInBytes { get; set; }
+
         public List<string> AllowedFileExtensions { get; set; }
-
-        public JpegSettings Jpeg { get; set; }
-
-        public PngSettings Png { get; set; }
 
         public WebpSettings Webp { get; set; }
 
+        public Dictionary<string, int> ImageVariants { get; set; }
+
+        public string SavedFileExtension { get; set; }
     }
 
-    public class JpegSettings
-    {
-        public int Quality { get; set; }
-    }
-
-    public class PngSettings
-    {
-        public int CompressionLevel { get; set; }
-    }
 
     public class WebpSettings
     {
