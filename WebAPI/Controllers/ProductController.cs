@@ -25,6 +25,13 @@ namespace WebAPI
             return Ok(products);
         }
 
+        [HttpGet("popular")]
+        public async Task<ActionResult> GetPopularProductsAsync()
+        {
+            var products = await _productService.GetPopularProductsAsync();
+            return Ok(products);
+        }
+
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult> GetProductByIdAsync([Required] Guid id)
         {
