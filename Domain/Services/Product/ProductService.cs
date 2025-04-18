@@ -125,6 +125,17 @@ namespace Domain
                 .ToList();
         }
 
+        public async Task<List<ProductDTO>> GetLatestProductsAsync(int count = 10)
+        {
+            var latestProducts = await _context.Products
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(count)
+                .ToListAsync();
+
+            return latestProducts
+                .Select(ProductDTO.FromProduct)
+                .ToList();
+        }
 
         public async Task<ProductDTO> CreateProductAsync(CreateProductDTO request)
         {
