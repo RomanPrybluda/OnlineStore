@@ -112,6 +112,20 @@ namespace Domain
             return popularProducts;
         }
 
+        public async Task<List<BestSellerProductDTO>> GetBestSellerProductsAsync(int count = 10)
+        {
+            var bestSellers = await _context.Products
+                .Where(p => p.IsActive)
+                .OrderByDescending(p => p.SoldQuantity)
+                .Take(count)
+                .ToListAsync();
+
+            return bestSellers
+                .Select(BestSellerProductDTO.FromProduct)
+                .ToList();
+        }
+
+
         public async Task<ProductDTO> CreateProductAsync(CreateProductDTO request)
         {
             var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Sku == request.Sku);
