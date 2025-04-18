@@ -28,8 +28,17 @@ namespace Domain
             if (filter.MaxPrice.HasValue)
                 query = query.Where(p => p.Price <= filter.MaxPrice.Value);
 
+            if (filter.MinRating.HasValue)
+                query = query.Where(p => p.Rating >= filter.MinRating.Value);
+
+            if (filter.MaxRating.HasValue)
+                query = query.Where(p => p.Rating <= filter.MaxRating.Value);
+
             if (filter.CategoryId.HasValue)
                 query = query.Where(p => p.CategoryId == filter.CategoryId.Value);
+
+            if (filter.IsActive.HasValue)
+                query = query.Where(p => p.IsActive == filter.IsActive.Value);
 
             if (filter.SortBy.HasValue)
             {
@@ -37,14 +46,17 @@ namespace Domain
 
                 query = filter.SortBy switch
                 {
-                    ProductSortBy.Price => isAscending ? query.OrderBy(p => p.Price) : query.OrderByDescending(p => p.Price),
-                    ProductSortBy.Rating => isAscending ? query.OrderBy(p => p.Rating) : query.OrderByDescending(p => p.Rating),
+                    ProductSortBy.Price => isAscending
+                        ? query.OrderBy(p => p.Price)
+                        : query.OrderByDescending(p => p.Price),
+
+                    ProductSortBy.Rating => isAscending
+                        ? query.OrderBy(p => p.Rating)
+                        : query.OrderByDescending(p => p.Rating),
+
                     _ => query
                 };
             }
-
-            if (filter.IsActive.HasValue)
-                query = query.Where(p => p.IsActive == filter.IsActive.Value);
 
             int totalItems = await query.CountAsync();
 
@@ -72,7 +84,6 @@ namespace Domain
                 totalItems
             );
         }
-
 
         public async Task<ProductByIdDTO> GetProductByIdAsync(Guid id)
         {
