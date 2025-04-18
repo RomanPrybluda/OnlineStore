@@ -12,7 +12,9 @@ namespace Domain
 
         public decimal Price { get; set; }
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string MainProductImage { get; set; } = string.Empty;
+
+        public List<string> ProductImages { get; set; } = new();
 
         public string Sku { get; set; } = string.Empty;
 
@@ -34,7 +36,8 @@ namespace Domain
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                ImageUrl = product.MainImageBaseName ?? string.Empty,
+                MainProductImage = product.MainImageBaseName ?? string.Empty,
+                ProductImages = product.ImageBaseNames,
                 Sku = product.Sku,
                 Rating = product.Rating,
                 StockQuantity = product.StockQuantity,
