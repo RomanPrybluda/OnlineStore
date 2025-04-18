@@ -49,14 +49,13 @@ namespace Domain
                     var productDescription = $"Delicious {productName} for your sweet cravings!";
                     var sortDescription = productDescription.Length > 50 ? productDescription.Substring(0, 50) + "..." : productDescription;
                     var productPrice = (decimal)(_random.NextDouble() * (1000 - 10) + 10);
-                    var imageName = $"mainImageName{i + 1}.webp";
+                    var imageName = $"mainImageName{i + 1}";
                     var baseImageName = $"imageName{i + 1}";
-                    var imageExtension = ".webp";
                     var imageNames = new List<string>
                     {
-                        $"{baseImageName}-1{imageExtension}",
-                        $"{baseImageName}-2{imageExtension}",
-                        $"{baseImageName}-3{imageExtension}"
+                        $"{baseImageName}-1",
+                        $"{baseImageName}-2",
+                        $"{baseImageName}-3"
                     };
                     var sku = $"SKU-{Guid.NewGuid()}";
                     var stockQuantity = _random.Next(1, 100);
