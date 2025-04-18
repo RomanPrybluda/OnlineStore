@@ -86,6 +86,32 @@ namespace Domain
             return productDTO;
         }
 
+        public async Task<List<PopularProductDTO>> GetPopularProductsAsync(int count = 10)
+        {
+            var products = await _context.Products
+                .Include(p => p.FavoritedByUsers)
+                .Include(p => p.Reviews)
+                .Where(p => p.IsActive)
+                .ToListAsync();
+
+            var popularProducts = products
+                .Select(p => new
+                {
+                    Product = p,
+                    PopularityScore =
+                        (p.Views * 0.4) +
+                        (p.FavoritedByUsers.Count * 0.3) +
+                        (p.Reviews.Count * 0.2) +
+                        (p.Rating * 0.1)
+                })
+                .OrderByDescending(p => p.PopularityScore)
+                .Take(count)
+                .Select(p => PopularProductDTO.FromProduct(p.Product, p.PopularityScore))
+                .ToList();
+
+            return popularProducts;
+        }
+
         public async Task<ProductDTO> CreateProductAsync(CreateProductDTO request)
         {
             var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Sku == request.Sku);

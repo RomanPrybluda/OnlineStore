@@ -22,6 +22,8 @@
 
         public int TotalVotes { get; set; }
 
+        public int Views { get; set; }
+
         public int StockQuantity { get; set; }
 
         public bool IsActive { get; set; }
