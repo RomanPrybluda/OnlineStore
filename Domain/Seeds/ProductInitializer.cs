@@ -77,7 +77,8 @@ namespace Domain
                         CategoryId = category.Id,
                         Category = category,
                         Rating = Math.Round(_random.NextDouble() * 5, 1),
-                        TotalVotes = _random.Next(0, 500)
+                        TotalVotes = _random.Next(0, 500),
+                        SoldQuantity = _random.Next(0, 101)
                     };
 
                     _context.Products.Add(product);

@@ -26,6 +26,8 @@
 
         public int StockQuantity { get; set; }
 
+        public int SoldQuantity { get; set; }
+
         public bool IsActive { get; set; }
 
         public Guid CategoryId { get; set; }
