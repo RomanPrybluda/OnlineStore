@@ -38,5 +38,9 @@
 
         public List<AppUser> FavoritedByUsers { get; set; } = new();
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
+
     }
 }

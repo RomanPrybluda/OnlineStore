@@ -60,6 +60,8 @@ namespace Domain
                     var sku = $"SKU-{Guid.NewGuid()}";
                     var stockQuantity = _random.Next(50, 200);
                     var views = _random.Next(20, 100);
+                    var createdAt = DateTime.UtcNow.AddDays(-_random.Next(1, 100));
+                    var updatedAt = createdAt.AddDays(_random.Next(0, 30));
 
                     var product = new Product
                     {
@@ -78,7 +80,9 @@ namespace Domain
                         Category = category,
                         Rating = Math.Round(_random.NextDouble() * 5, 1),
                         TotalVotes = _random.Next(0, 500),
-                        SoldQuantity = _random.Next(0, 101)
+                        SoldQuantity = _random.Next(0, 101),
+                        CreatedAt = createdAt,
+                        UpdateAt = updatedAt
                     };
 
                     _context.Products.Add(product);
