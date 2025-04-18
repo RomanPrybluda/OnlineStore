@@ -36,16 +36,18 @@ namespace Domain
 
         public async Task<ReviewDTO> CreateReviewAsync(CreateReviewDTO request)
         {
-            var product = await _context.Products.FindAsync(request.ProductId);
+            var product = await _context.Products
+                .Include(p => p.Reviews)
+                .FirstOrDefaultAsync(p => p.Id == request.ProductId);
+
             if (product == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No product found with ID {request.ProductId}");
 
             var review = CreateReviewDTO.ToReview(request);
-
             _context.Reviews.Add(review);
 
-            product.TotalVotes++;
-            product.Rating = (product.Reviews.Sum(r => r.ReviewRating) + review.ReviewRating) / (double)product.TotalVotes;
+            product.Reviews.Add(review);
+            RecalculateRating(product);
 
             await _context.SaveChangesAsync();
 
@@ -56,19 +58,16 @@ namespace Domain
         {
             var review = await _context.Reviews
                 .Include(r => r.Product)
+                    .ThenInclude(p => p.Reviews)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (review == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"Review with ID {id} not found.");
 
-            var product = review.Product;
-            if (product == null)
-                throw new CustomException(CustomExceptionType.NotFound, "Product associated with this review not found.");
-
-            product.Rating = (product.Rating * product.TotalVotes - review.ReviewRating + request.ReviewRating) / (double)product.TotalVotes;
-
             request.UpdateReview(review);
             _context.Reviews.Update(review);
+
+            RecalculateRating(review.Product);
 
             await _context.SaveChangesAsync();
 
@@ -79,28 +78,35 @@ namespace Domain
         {
             var review = await _context.Reviews
                 .Include(r => r.Product)
+                    .ThenInclude(p => p.Reviews)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (review == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"Review with ID {id} not found.");
 
             var product = review.Product;
-            if (product == null)
-                throw new CustomException(CustomExceptionType.NotFound, "Product associated with this review not found.");
-
-            if (product.TotalVotes > 1)
-            {
-                product.Rating = (product.Rating * product.TotalVotes - review.ReviewRating) / (double)(product.TotalVotes - 1);
-                product.TotalVotes--;
-            }
-            else
-            {
-                product.Rating = 0;
-                product.TotalVotes = 0;
-            }
 
             _context.Reviews.Remove(review);
+            product.Reviews.Remove(review);
+
+            RecalculateRating(product);
+
             await _context.SaveChangesAsync();
+        }
+
+        private void RecalculateRating(Product product)
+        {
+            if (product.Reviews == null || !product.Reviews.Any())
+            {
+                product.TotalVotes = 0;
+                product.Rating = 0;
+                return;
+            }
+
+            product.TotalVotes = product.Reviews.Count;
+            double average = product.Reviews.Average(r => r.ReviewRating);
+
+            product.Rating = Math.Round(average * Math.Log(1 + product.TotalVotes), 3);
         }
     }
 }

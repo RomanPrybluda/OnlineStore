@@ -12,6 +12,10 @@
 
         public decimal? MaxPrice { get; set; }
 
+        public double? MinRating { get; set; }
+
+        public double? MaxRating { get; set; }
+
         public int? PageNumber { get; set; }
 
         public int? PageSize { get; set; }

@@ -16,6 +16,8 @@ namespace Domain
 
         public bool IsActive { get; set; }
 
+        public double Rating { get; set; }
+
         public static ProductDTO FromProduct(Product product)
         {
             return new ProductDTO
@@ -25,7 +27,8 @@ namespace Domain
                 SortDescription = product.SortDescription,
                 IsActive = product.IsActive,
                 Price = product.Price,
-                MainImageName = product.MainImageBaseName
+                MainImageName = product.MainImageBaseName,
+                Rating = product.Rating
             };
         }
     }
