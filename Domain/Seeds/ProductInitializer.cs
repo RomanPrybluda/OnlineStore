@@ -58,7 +58,8 @@ namespace Domain
                         $"{baseImageName}-3"
                     };
                     var sku = $"SKU-{Guid.NewGuid()}";
-                    var stockQuantity = _random.Next(1, 100);
+                    var stockQuantity = _random.Next(50, 200);
+                    var views = _random.Next(20, 100);
 
                     var product = new Product
                     {
@@ -70,6 +71,7 @@ namespace Domain
                         MainImageBaseName = imageName,
                         ImageBaseNames = imageNames,
                         Sku = sku,
+                        Views = views,
                         StockQuantity = stockQuantity,
                         IsActive = _random.Next(0, 2) == 1,
                         CategoryId = category.Id,
