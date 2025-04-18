@@ -32,6 +32,13 @@ namespace WebAPI
             return Ok(products);
         }
 
+        [HttpGet("bestsellers")]
+        public async Task<ActionResult> GetBestSellerProductsAsync()
+        {
+            var products = await _productService.GetBestSellerProductsAsync();
+            return Ok(products);
+        }
+
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult> GetProductByIdAsync([Required] Guid id)
         {
