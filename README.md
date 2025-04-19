@@ -31,7 +31,6 @@ Before you begin, ensure you have the following installed:
 
    ```bash
    git clone https://github.com/your-username/craft-sweets.git
-   cd craft-sweets
    ```
 
 2. **Go to the project directory:**
