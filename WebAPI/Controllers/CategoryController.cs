@@ -28,7 +28,7 @@ namespace WebAPI
         }
 
         [HttpGet("{id:Guid}")]
-        public async Task<ActionResult> GetCategoryByIdAsync([Required] Guid id)
+        public async Task<ActionResult> GetCategoryByIdAsync(Guid id)
         {
             var category = await _categoryService.GetCategoryByIdAsync(id);
             return Ok(category);
@@ -49,7 +49,7 @@ namespace WebAPI
         }
 
         [HttpDelete("{id:Guid}")]
-        public async Task<ActionResult> DeleteCategoryAsync([Required] Guid id)
+        public async Task<ActionResult> DeleteCategoryAsync(Guid id)
         {
             await _categoryService.DeleteCategoryAsync(id);
             return NoContent();

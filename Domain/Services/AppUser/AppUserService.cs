@@ -1,5 +1,4 @@
 ﻿using DAL;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Domain
@@ -7,14 +6,10 @@ namespace Domain
     public class AppUserService
     {
         private readonly OnlineStoreDbContext _context;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AppUserService(
-            OnlineStoreDbContext context,
-            RoleManager<IdentityRole> roleManager)
+        public AppUserService(OnlineStoreDbContext context)
         {
             _context = context;
-            _roleManager = roleManager;
         }
 
         public async Task<List<AppUserInfoDTO>> GetAllUsersAsync()

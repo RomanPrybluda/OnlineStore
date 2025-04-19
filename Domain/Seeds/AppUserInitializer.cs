@@ -51,7 +51,7 @@ namespace Domain
                         EmailConfirmed = true
                     };
 
-                    var password = "User@123";
+                    var password = "AppUser@123456789";
 
                     var result = _userManager.CreateAsync(user, password).Result;
                     if (!result.Succeeded)

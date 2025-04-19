@@ -29,7 +29,7 @@ namespace WebAPI
             return Ok(user);
         }
 
-        [HttpGet("info/{id}")]
+        [HttpGet("info/{id:Guid}")]
         public async Task<ActionResult> GetUserInfoAsync([Required] Guid id)
         {
             var userInfo = await _userService.GetUserInfoAsync(id);

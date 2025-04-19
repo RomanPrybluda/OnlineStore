@@ -24,9 +24,8 @@ namespace Domain
         public string Email { get; set; }
 
         [Required]
-        [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
-        [MaxLength(16)]
-        [RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$", ErrorMessage = "The password must contain at least one uppercase letter, one number and one special character.")]
+        [StringLength(16, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 16 characters.")]
+        [RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,16}$", ErrorMessage = "The password must contain at least one uppercase letter, one number and one special character.")]
         public string Password { get; set; }
     }
 }
