@@ -34,7 +34,13 @@ Before you begin, ensure you have the following installed:
    cd craft-sweets
    ```
 
-2. **Configure the connection string:**
+2. **Go to the project directory:**
+
+   ```bash   
+   cd craft-sweets
+   ```
+
+3. **Configure the connection string:**
 
    Set your local database connection string in either `appsettings.json` or using the [Secret Manager](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets):
 
@@ -42,7 +48,7 @@ Before you begin, ensure you have the following installed:
    dotnet user-secrets set "ConnectionStrings:LocalConnectionString" "Server=YOUR_SERVER_NAME;Database=CraftSweetDB;Trusted_Connection=True;Encrypt=False;"
    ```
 
-3. **Run the application:**
+4. **Run the application:**
 
    ```bash
    dotnet run --project WebAPI
@@ -52,7 +58,7 @@ Before you begin, ensure you have the following installed:
    - Apply pending EF Core migrations
    - Seed initial data for products, categories, and users
 
-4. **Open Swagger UI:**
+5. **Open Swagger UI:**
 
    Visit [https://localhost:5001/swagger](https://localhost:5001/swagger) to test API endpoints.
 
