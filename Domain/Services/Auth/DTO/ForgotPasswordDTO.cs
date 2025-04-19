@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Services.User.DTO
+namespace Domain
 {
     public class ForgotPasswordDTO
     {

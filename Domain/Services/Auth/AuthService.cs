@@ -1,8 +1,7 @@
 using DAL;
-using Domain.Services.AuthService.DTO;
 using Microsoft.EntityFrameworkCore;
 
-namespace Domain.Services.AuthService
+namespace Domain
 {
     public class AuthService
     {

@@ -1,99 +1,52 @@
-using Domain.Services.AuthService;
-using Domain.Services.User.DTO;
+using Domain;
 using Microsoft.AspNetCore.Mvc;
-using Domain.Services.User;
-using LoginDTO = Domain.Services.AuthService.DTO.LoginDTO;
-using DAL;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Domain.Services.AuthService.DTO;
 
-namespace WebAPI;
-
-[ApiController]
-[Route("api/auth")]
-public class AuthController : ControllerBase
+namespace WebAPI
 {
-    private readonly OnlineStoreDbContext _dbContext;
-    private readonly AuthService _authService;
-    
 
-    public AuthController(AuthService authService, OnlineStoreDbContext dbContext)
+    [ApiController]
+    [Route("auth")]
+    public class AuthController : ControllerBase
     {
-        _dbContext = dbContext;
-        _authService = authService;
-    }
+        private readonly AuthService _authService;
 
-    [HttpPost("Register")]
-    public IActionResult Registration([FromBody] RegisterDTO registerDto)
-    {
-        var token = _authService.Register(registerDto);
-
-        if (token == null)
+        public AuthController(AuthService authService)
         {
-            return BadRequest(new { message = "User registration failed" });
+            _authService = authService;
         }
 
-        return Ok(new { Token = token });
-    }
-
-    [HttpPost("Login")]
-    public async Task<IActionResult> Login([FromBody] LoginDTO login)
-    {
-        if (!ModelState.IsValid)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         {
-            return BadRequest(ModelState);
+            var token = await _authService.Register(registerDto);
+            return Ok(new { Token = token });
         }
 
-        var token = await _authService.Validate(login);
-
-        if (token == null)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
-            return Unauthorized("Invalid email or password");
+            var token = await _authService.Validate(loginDto);
+            return Ok(new { Token = token });
         }
 
-        return Ok(new { Token = token });
-    }
-
-    [HttpPost("Logout")]
-    public IActionResult Logout()
-    {
-        return Ok(new { message = "You have successfully logged out" });
-    }
-
-    
-    [HttpPost("forgot-password")]
-    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDto)
-    {
-        if (ModelState.IsValid)
+        [HttpPost("logout")]
+        public IActionResult Logout()
         {
-            var result = await _authService.ForgotPasswordAsync(forgotPasswordDto.Email);
-            if (result == "User not found")
-            {
-                return BadRequest("User not found.");
-            }
-
-            return Ok(new { Message = "Password reset token sent.", Token = result });
+            return Ok(new { Message = "You have successfully logged out" });
         }
-        return BadRequest(ModelState);
-    }
 
-   
-    [HttpPost("reset-password")]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO resetPasswordDto)
-    {
-        if (ModelState.IsValid)
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDto)
         {
-            var result = await _authService.ResetPasswordAsync(resetPasswordDto.Email, resetPasswordDto.Token, resetPasswordDto.NewPassword);
-            if (result)
-            {
-                return Ok("Password reset successfully.");
-            }
-            else
-            {
-                return BadRequest("Failed to reset password. Please check the token and try again.");
-            }
+            var token = await _authService.ForgotPasswordAsync(forgotPasswordDto.Email);
+            return Ok(new { Message = "Password reset token sent", Token = token });
         }
-        return BadRequest(ModelState);
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO resetPasswordDto)
+        {
+            await _authService.ResetPasswordAsync(resetPasswordDto.Email, resetPasswordDto.Token, resetPasswordDto.NewPassword);
+            return Ok("Password reset successfully.");
+        }
     }
 }

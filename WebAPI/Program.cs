@@ -1,7 +1,5 @@
 using DAL;
 using Domain;
-using Domain.Services.AuthService;
-using Domain.Services.UserData;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
