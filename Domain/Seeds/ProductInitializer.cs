@@ -49,9 +49,19 @@ namespace Domain
                     var productDescription = $"Delicious {productName} for your sweet cravings!";
                     var sortDescription = productDescription.Length > 50 ? productDescription.Substring(0, 50) + "..." : productDescription;
                     var productPrice = (decimal)(_random.NextDouble() * (1000 - 10) + 10);
-                    var imageUrl = $"https://example.com/images/product{i + 1}.jpg";
+                    var imageName = $"mainImageName{i + 1}";
+                    var baseImageName = $"imageName{i + 1}";
+                    var imageNames = new List<string>
+                    {
+                        $"{baseImageName}-1",
+                        $"{baseImageName}-2",
+                        $"{baseImageName}-3"
+                    };
                     var sku = $"SKU-{Guid.NewGuid()}";
-                    var stockQuantity = _random.Next(1, 100);
+                    var stockQuantity = _random.Next(50, 200);
+                    var views = _random.Next(20, 100);
+                    var createdAt = DateTime.UtcNow.AddDays(-_random.Next(1, 100));
+                    var updatedAt = createdAt.AddDays(_random.Next(0, 30));
 
                     var product = new Product
                     {
@@ -60,14 +70,19 @@ namespace Domain
                         Description = productDescription,
                         SortDescription = sortDescription,
                         Price = productPrice,
-                        ImageUrl = imageUrl,
+                        MainImageBaseName = imageName,
+                        ImageBaseNames = imageNames,
                         Sku = sku,
+                        Views = views,
                         StockQuantity = stockQuantity,
                         IsActive = _random.Next(0, 2) == 1,
                         CategoryId = category.Id,
                         Category = category,
                         Rating = Math.Round(_random.NextDouble() * 5, 1),
-                        TotalVotes = _random.Next(0, 500)
+                        TotalVotes = _random.Next(0, 500),
+                        SoldQuantity = _random.Next(0, 101),
+                        CreatedAt = createdAt,
+                        UpdateAt = updatedAt
                     };
 
                     _context.Products.Add(product);

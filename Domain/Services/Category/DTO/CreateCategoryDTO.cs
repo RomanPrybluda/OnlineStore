@@ -1,4 +1,5 @@
 ﻿using DAL;
+using Microsoft.AspNetCore.Http;
 
 namespace Domain
 {
@@ -8,13 +9,16 @@ namespace Domain
 
         public string Description { get; set; } = string.Empty;
 
-        public static Category ToCategory(CreateCategoryDTO request)
+        public IFormFile Image { get; set; }
+
+        public static Category ToCategory(CreateCategoryDTO request, string imageBaseName)
         {
             return new Category
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 Description = request.Description,
+                ImageBaseName = imageBaseName
             };
         }
     }

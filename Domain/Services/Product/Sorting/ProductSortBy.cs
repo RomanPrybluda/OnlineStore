@@ -3,6 +3,8 @@
     public enum ProductSortBy
     {
         Price,
-        Rating
+        Rating,
+        Name,
+        CreatedDate
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
 
@@ -21,6 +22,25 @@ if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException("Connection string is not set. Check environment variables, appsettings.json, or secrets.");
 }
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Craft Sweets",
+        Version = "v1"
+    });
+});
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddHttpClient();
+
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 {
     options.UseSqlServer(connectionString, b => b.MigrationsAssembly("DAL"));
@@ -41,6 +61,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<FavoriteProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
@@ -104,6 +125,11 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.Configure<ImageStorageSettings>(
+    builder.Configuration.GetSection("ImageStorageSettings"));
+builder.Services.AddScoped<ImageService>();
+builder.Services.AddSingleton(resolver =>
+    resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
 
 builder.Logging.AddConsole();
 
@@ -146,18 +172,27 @@ using (var scope = app.Services.CreateScope())
     productInitializer.InitializeProducts();
 
     var appUserInitializer = new AppUserInitializer(context, userManager);
-    appUserInitializer.InitializeUsers();
 }
 
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.UseCors("AllowAll");
 
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Craft Sweets API v1");
+    options.DocumentTitle = "Craft Sweets";
+});
+//}
+//}
+
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
+
+app.UseStaticFiles();
 
 app.UseAuthorization();
 

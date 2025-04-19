@@ -35,14 +35,14 @@ namespace WebAPI
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateCategoryAsync([FromBody][Required] CreateCategoryDTO request)
+        public async Task<ActionResult> CreateCategoryAsync([FromForm][FromBody][Required] CreateCategoryDTO request)
         {
             var category = await _categoryService.CreateCategoryAsync(request);
             return Ok(category);
         }
 
         [HttpPut("{id:Guid}")]
-        public async Task<ActionResult> UpdateCategoryAsync(Guid id, [FromBody][Required] UpdateCategoryDTO request)
+        public async Task<ActionResult> UpdateCategoryAsync(Guid id, [FromForm][FromBody][Required] UpdateCategoryDTO request)
         {
             var category = await _categoryService.UpdateCategoryAsync(id, request);
             return Ok(category);

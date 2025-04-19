@@ -7,10 +7,12 @@ namespace Domain
     {
 
         private readonly OnlineStoreDbContext _context;
+        private readonly ImageService _imageService;
 
-        public ProductService(OnlineStoreDbContext context)
+        public ProductService(OnlineStoreDbContext context, ImageService imageService)
         {
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<PagedResponseDTO<ProductDTO>> GetProductsListAsync(ProductFilterDTO filter)
@@ -26,8 +28,17 @@ namespace Domain
             if (filter.MaxPrice.HasValue)
                 query = query.Where(p => p.Price <= filter.MaxPrice.Value);
 
+            if (filter.MinRating.HasValue)
+                query = query.Where(p => p.Rating >= filter.MinRating.Value);
+
+            if (filter.MaxRating.HasValue)
+                query = query.Where(p => p.Rating <= filter.MaxRating.Value);
+
             if (filter.CategoryId.HasValue)
                 query = query.Where(p => p.CategoryId == filter.CategoryId.Value);
+
+            if (filter.IsActive.HasValue)
+                query = query.Where(p => p.IsActive == filter.IsActive.Value);
 
             if (filter.SortBy.HasValue)
             {
@@ -35,14 +46,17 @@ namespace Domain
 
                 query = filter.SortBy switch
                 {
-                    ProductSortBy.Price => isAscending ? query.OrderBy(p => p.Price) : query.OrderByDescending(p => p.Price),
-                    ProductSortBy.Rating => isAscending ? query.OrderBy(p => p.Rating) : query.OrderByDescending(p => p.Rating),
+                    ProductSortBy.Price => isAscending
+                        ? query.OrderBy(p => p.Price)
+                        : query.OrderByDescending(p => p.Price),
+
+                    ProductSortBy.Rating => isAscending
+                        ? query.OrderBy(p => p.Rating)
+                        : query.OrderByDescending(p => p.Rating),
+
                     _ => query
                 };
             }
-
-            if (filter.IsActive.HasValue)
-                query = query.Where(p => p.IsActive == filter.IsActive.Value);
 
             int totalItems = await query.CountAsync();
 
@@ -71,7 +85,6 @@ namespace Domain
             );
         }
 
-
         public async Task<ProductByIdDTO> GetProductByIdAsync(Guid id)
         {
             var productById = await _context.Products.FindAsync(id);
@@ -84,6 +97,57 @@ namespace Domain
             return productDTO;
         }
 
+        public async Task<List<PopularProductDTO>> GetPopularProductsAsync(int count = 10)
+        {
+            var products = await _context.Products
+                .Include(p => p.FavoritedByUsers)
+                .Include(p => p.Reviews)
+                .Where(p => p.IsActive)
+                .ToListAsync();
+
+            var popularProducts = products
+                .Select(p => new
+                {
+                    Product = p,
+                    PopularityScore =
+                        (p.Views * 0.4) +
+                        (p.FavoritedByUsers.Count * 0.3) +
+                        (p.Reviews.Count * 0.2) +
+                        (p.Rating * 0.1)
+                })
+                .OrderByDescending(p => p.PopularityScore)
+                .Take(count)
+                .Select(p => PopularProductDTO.FromProduct(p.Product, p.PopularityScore))
+                .ToList();
+
+            return popularProducts;
+        }
+
+        public async Task<List<BestSellerProductDTO>> GetBestSellerProductsAsync(int count = 10)
+        {
+            var bestSellers = await _context.Products
+                .Where(p => p.IsActive)
+                .OrderByDescending(p => p.SoldQuantity)
+                .Take(count)
+                .ToListAsync();
+
+            return bestSellers
+                .Select(BestSellerProductDTO.FromProduct)
+                .ToList();
+        }
+
+        public async Task<List<ProductDTO>> GetLatestProductsAsync(int count = 10)
+        {
+            var latestProducts = await _context.Products
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(count)
+                .ToListAsync();
+
+            return latestProducts
+                .Select(ProductDTO.FromProduct)
+                .ToList();
+        }
+
         public async Task<ProductDTO> CreateProductAsync(CreateProductDTO request)
         {
             var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Sku == request.Sku);
@@ -94,7 +158,15 @@ namespace Domain
             if (category == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {request.CategoryId}");
 
-            var product = CreateProductDTO.ToProduct(request);
+            string mainImageBaseName = string.Empty;
+            if (request.MainProductImage != null)
+                mainImageBaseName = await _imageService.UploadImageAsync(request.MainProductImage);
+
+            List<string> imageBaseNames = new();
+            if (request.ProductImages != null)
+                imageBaseNames = await _imageService.UploadMultipleImagesAsync(request.ProductImages);
+
+            var product = CreateProductDTO.ToProduct(request, mainImageBaseName, imageBaseNames);
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -121,7 +193,15 @@ namespace Domain
             if (category == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {request.CategoryId}");
 
-            request.UpdateProduct(product);
+            string mainImageBaseName = string.Empty;
+            if (request.MainProductImage != null)
+                mainImageBaseName = await _imageService.UploadImageAsync(request.MainProductImage);
+
+            List<string> imageBaseNames = new();
+            if (request.ProductImages != null)
+                imageBaseNames = await _imageService.UploadMultipleImagesAsync(request.ProductImages);
+
+            request.UpdateProduct(product, mainImageBaseName, imageBaseNames);
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();

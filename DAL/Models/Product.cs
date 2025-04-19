@@ -12,7 +12,9 @@
 
         public decimal Price { get; set; }
 
-        public string? ImageUrl { get; set; }
+        public string? MainImageBaseName { get; set; } = string.Empty;
+
+        public List<string>? ImageBaseNames { get; set; }
 
         public string Sku { get; set; } = string.Empty;
 
@@ -20,7 +22,11 @@
 
         public int TotalVotes { get; set; }
 
+        public int Views { get; set; }
+
         public int StockQuantity { get; set; }
+
+        public int SoldQuantity { get; set; }
 
         public bool IsActive { get; set; }
 
@@ -29,6 +35,12 @@
         public Category Category { get; set; } = null!;
 
         public List<Review> Reviews { get; set; } = new();
+
+        public List<AppUser> FavoritedByUsers { get; set; } = new();
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
 
     }
 }

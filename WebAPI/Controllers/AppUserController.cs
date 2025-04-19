@@ -29,13 +29,6 @@ namespace WebAPI
             return Ok(user);
         }
 
-        [HttpDelete("{id:Guid}")]
-        public async Task<ActionResult> DeleteUserAsync([Required] Guid id)
-        {
-            await _userService.DeleteUserAsync(id);
-            return NoContent();
-        }
-
         [HttpGet("info/{id}")]
         public async Task<ActionResult> GetUserInfoAsync([Required] Guid id)
         {
