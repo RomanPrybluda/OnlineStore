@@ -14,12 +14,24 @@ namespace Domain
             _imageService = imageService;
         }
 
-        public async Task<IEnumerable<PromotionDTO>> GetAllPromotionsAsync(bool includeInactive = false)
+        public async Task<IEnumerable<PromotionDTO>> GetAllPromotionsAsync(PromotionStatusFilter statusFilter)
         {
-            var promotions = _context.Promotions.AsQueryable();
+            var promotionsQuery = _context.Promotions.AsQueryable();
 
-            if (!includeInactive)
-                promotions = promotions.Where(p => p.IsActive);
+            switch (statusFilter)
+            {
+                case PromotionStatusFilter.ActiveOnly:
+                    promotionsQuery = promotionsQuery.Where(p => p.IsActive);
+                    break;
+                case PromotionStatusFilter.InactiveOnly:
+                    promotionsQuery = promotionsQuery.Where(p => !p.IsActive);
+                    break;
+                case PromotionStatusFilter.All:
+                default:
+                    break;
+            }
+
+            var promotions = await promotionsQuery.ToListAsync();
 
             if (!promotions.Any())
                 throw new CustomException(CustomExceptionType.NotFound, "Promotions not found");
@@ -35,7 +47,7 @@ namespace Domain
             return promotionDTOs;
         }
 
-        public async Task<PromotionDTO> GetPromotionByIdAsync(Guid id)
+        public async Task<PromotionByIdDTO> GetPromotionByIdAsync(Guid id)
         {
             var promotionById = await _context.Promotions.FindAsync(id);
 
@@ -43,9 +55,9 @@ namespace Domain
                 throw new CustomException(CustomExceptionType.NotFound,
                     $"Promotion not found with ID {id}");
 
-            var promotionDTO = PromotionDTO.FromPromotion(promotionById);
+            var promotionByIdDTO = PromotionByIdDTO.FromPromotion(promotionById);
 
-            return promotionDTO;
+            return promotionByIdDTO;
         }
 
         public async Task<PromotionDTO> CreatePromotionAsync(CreatePromotionDTO request)

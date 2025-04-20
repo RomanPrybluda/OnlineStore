@@ -106,6 +106,9 @@ using (var scope = app.Services.CreateScope())
 
     var appUserInitializer = new AppUserInitializer(context, userManager);
     appUserInitializer.InitializeUsers();
+
+    var promotionInitializer = new PromotionInitializer(context);
+    await promotionInitializer.InitializePromotions();
 }
 
 app.UseCors("AllowAll");

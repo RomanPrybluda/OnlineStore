@@ -1,12 +1,11 @@
 ﻿using Domain;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 [ApiController]
 [Produces("application/json")]
 [Route("promotions")]
-[Authorize(Roles = "Manager")]
+
 public class PromotionsController : ControllerBase
 {
     private readonly PromotionService _promotionService;
@@ -17,9 +16,9 @@ public class PromotionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAllPromotion([FromQuery] bool includeInactive = false)
+    public async Task<ActionResult> GetAllPromotion([FromQuery] PromotionStatusFilter statusFilter = PromotionStatusFilter.All)
     {
-        var promotions = await _promotionService.GetAllPromotionsAsync(includeInactive);
+        var promotions = await _promotionService.GetAllPromotionsAsync(statusFilter);
         return Ok(promotions);
     }
 

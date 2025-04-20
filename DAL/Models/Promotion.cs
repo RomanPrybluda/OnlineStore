@@ -20,9 +20,9 @@
 
         public string ImageBannerName { get; set; } = string.Empty;
 
-        public List<int> CategoryIds { get; set; } = new List<int>();
+        public List<Guid> CategoryIds { get; set; } = new List<Guid>();
 
-        public List<int> ProductIds { get; set; } = new List<int>();
+        public List<Guid> ProductIds { get; set; } = new List<Guid>();
 
     }
 }
