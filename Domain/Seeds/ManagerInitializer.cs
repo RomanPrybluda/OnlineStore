@@ -1,20 +1,27 @@
-﻿using DAL.Models;
+﻿using DAL;
+using DAL.Models;
 using Domain;
+using Microsoft.AspNetCore.Identity;
 
 public class ManagerInitializer
 {
     private readonly AuthService _authService;
+    private readonly UserManager<AppUser> _userManager;
 
-    public ManagerInitializer(AuthService authService)
+    public ManagerInitializer(
+        AuthService authService,
+        UserManager<AppUser> userManager)
     {
         _authService = authService;
+        _userManager = userManager;
     }
 
     public async Task InitializeManagerAsync()
     {
         var managerEmail = "manager@example.com";
 
-        var existingUser = await _authService.FindByEmailAsync(managerEmail);
+        var existingUser = await _userManager.FindByEmailAsync(managerEmail);
+
         if (existingUser != null)
         {
             Console.WriteLine($"Manager with email {managerEmail} already exists.");
@@ -26,7 +33,6 @@ public class ManagerInitializer
             FirstName = "Default",
             LastName = "Manager",
             Age = 35,
-            UserName = "manageruser",
             Email = managerEmail,
             Password = "Manager@123"
         };

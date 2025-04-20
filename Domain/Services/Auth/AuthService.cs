@@ -7,34 +7,26 @@ public class AuthService
     private readonly UserManager<AppUser> _userManager;
     private readonly TokenService _tokenService;
 
-    public AuthService(UserManager<AppUser> userManager, TokenService tokenService)
+    public AuthService(
+        UserManager<AppUser> userManager,
+        TokenService tokenService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
     }
 
-    public async Task<AppUser> FindByEmailAsync(string email)
-    {
-        return await _userManager.FindByEmailAsync(email);
-    }
-
     public async Task<AuthResult> Register(RegisterDTO request, string role)
     {
         if (string.IsNullOrEmpty(request.Email))
-        {
-            throw new ArgumentException("Email cannot be empty.");
-        }
+            throw new CustomException(CustomExceptionType.NotFound, "No users found.");
 
         var existingUser = await _userManager.FindByEmailAsync(request.Email);
+
         if (existingUser != null)
-        {
-            throw new InvalidOperationException("User with this email already exists.");
-        }
+            throw new CustomException(CustomExceptionType.UserIsAlreadyExists, "User is already exists.");
 
         if (request.Password.Length < 6)
-        {
-            throw new ArgumentException("Password must be at least 6 characters long.");
-        }
+            throw new CustomException(CustomExceptionType.PasswordLength, "Password length must be at least 6 symbols.");
 
         var appUser = new AppUser
         {
@@ -43,7 +35,6 @@ public class AuthService
             Email = request.Email,
             Age = request.Age,
             UserName = request.UserName,
-            HashedPassword = HashPassword(request.Password),
         };
 
         var result = await _userManager.CreateAsync(appUser, request.Password);
@@ -59,6 +50,7 @@ public class AuthService
         await _userManager.AddToRoleAsync(appUser, role);
 
         var token = _tokenService.GenerateJwtToken(appUser);
+
         return new AuthResult
         {
             Succeeded = true,
@@ -69,11 +61,6 @@ public class AuthService
     public async Task<string> Validate(LoginDTO loginDto)
     {
         var user = await _userManager.FindByEmailAsync(loginDto.Email);
-        if (user == null || !VerifyPassword(loginDto.Password, user.HashedPassword))
-        {
-            throw new InvalidOperationException("Invalid credentials");
-        }
-
         return _tokenService.GenerateJwtToken(user);
     }
 
@@ -104,7 +91,4 @@ public class AuthService
         }
     }
 
-    private string HashPassword(string password) => BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
-
-    private bool VerifyPassword(string password, string passwordHash) => BCrypt.Net.BCrypt.Verify(password, passwordHash);
 }

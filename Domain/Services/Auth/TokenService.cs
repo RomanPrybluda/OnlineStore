@@ -7,7 +7,6 @@ using System.Text;
 
 namespace Domain
 {
-
     public class TokenService
     {
         private readonly IConfiguration _configuration;
@@ -34,7 +33,6 @@ namespace Domain
             {
             new Claim(ClaimTypes.Name, user.FirstName),
             new Claim(ClaimTypes.Surname, user.LastName),
-            new Claim(ClaimTypes.Role, user.Role)
         };
 
             var token = new JwtSecurityToken(

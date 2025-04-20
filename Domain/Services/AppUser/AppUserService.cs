@@ -43,17 +43,6 @@ namespace Domain
             return userDTO;
         }
 
-        public async Task DeleteUserAsync(Guid id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-                throw new CustomException(CustomExceptionType.NotFound, $"No user found with ID {id}");
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<AppUserInfoDTO> GetUserInfoAsync(Guid id)
         {
             var userById = await _context.Users.FindAsync(id);
@@ -64,6 +53,17 @@ namespace Domain
             var userDTO = AppUserInfoDTO.FromUser(userById);
 
             return userDTO;
+        }
+
+        public async Task DeleteUserAsync(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+
+            if (user == null)
+                throw new CustomException(CustomExceptionType.NotFound, $"No user found with ID {id}");
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<AppUserDTO> UserUpdateAsync(Guid id, UpdateAppUserDTO request)

@@ -28,8 +28,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
@@ -37,19 +35,9 @@ builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
     options.UseSqlServer(connectionString, b => b.MigrationsAssembly("DAL"));
 });
 
-builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 8;
-    options.User.RequireUniqueEmail = true;
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-})
-.AddEntityFrameworkStores<OnlineStoreDbContext>()
-.AddDefaultTokenProviders();
+builder.Services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<OnlineStoreDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<FavoriteProductService>();
@@ -60,41 +48,46 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<TokenService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidateAudience = true,
-            ValidAudience = jwtSettings["Audience"],
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-    });
-
-builder.Services.AddSwaggerGen(option =>
+builder.Services.AddAuthentication(options =>
 {
-    option.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Craft Sweets",
         Version = "v1"
     });
-    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
+        Description = "Input JWT token: Bearer {token}",
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -180,8 +173,6 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "Craft Sweets API v1");
     options.DocumentTitle = "Craft Sweets";
 });
-//}
-//}
 
 app.UseHttpsRedirection();
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("auth")]
+
 public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
@@ -15,7 +16,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
     {
-        var token = await _authService.Register(registerDto, "User"); // Passing a default role
+        var token = await _authService.Register(registerDto, "User");
         return Ok(new { Token = token });
     }
 
