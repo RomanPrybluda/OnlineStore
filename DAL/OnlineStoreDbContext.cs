@@ -26,6 +26,9 @@ namespace DAL
 
         public DbSet<OrderItem> OrderItems { get; set; }
 
+        public DbSet<Promotion> Promotions { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfigurationsFromAssembly(typeof(OnlineStoreDbContext).Assembly);
