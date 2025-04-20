@@ -56,6 +56,7 @@ builder.Services.AddScoped<FavoriteProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
+builder.Services.AddScoped<PromotionService>();
 
 builder.Services.Configure<ImageStorageSettings>(
     builder.Configuration.GetSection("ImageStorageSettings"));
