@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using DAL;
+using Domain.ModelBinders;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Domain
 {
@@ -16,7 +18,8 @@ namespace Domain
         public string Sku { get; set; } = string.Empty;
 
         public bool IsActive { get; set; }
-
+        
+        [ModelBinder(BinderType = typeof(StrictIntModelBinder))]
         public int StockQuantity { get; set; }
 
         public Guid CategoryId { get; set; }
