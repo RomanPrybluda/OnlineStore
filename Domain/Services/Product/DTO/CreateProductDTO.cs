@@ -1,4 +1,5 @@
-﻿using DAL;
+﻿using System.ComponentModel.DataAnnotations;
+using DAL;
 using Microsoft.AspNetCore.Http;
 
 namespace Domain
@@ -8,7 +9,8 @@ namespace Domain
         public string Name { get; set; } = string.Empty;
 
         public string Description { get; set; } = string.Empty;
-
+        
+        [Range(0, double.MaxValue, ErrorMessage = "Price must be a non-negative number.")]
         public decimal Price { get; set; }
 
         public string Sku { get; set; } = string.Empty;
