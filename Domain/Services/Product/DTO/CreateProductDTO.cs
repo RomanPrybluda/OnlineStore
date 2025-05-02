@@ -10,7 +10,7 @@ namespace Domain
 
         public string Description { get; set; } = string.Empty;
 
-        [Range(0.0, double.MaxValue, ErrorMessage = "Price must be zero or positive!")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be not zero and be positive!")]
         public decimal Price { get; set; }
 
         public string Sku { get; set; } = string.Empty;
