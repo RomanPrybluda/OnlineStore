@@ -1,5 +1,6 @@
 ﻿using DAL;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace Domain
 {
@@ -9,6 +10,7 @@ namespace Domain
 
         public string Description { get; set; } = string.Empty;
 
+        [Range(0.0, double.MaxValue, ErrorMessage = "Price must be zero or positive!")]
         public decimal Price { get; set; }
 
         public string Sku { get; set; } = string.Empty;
