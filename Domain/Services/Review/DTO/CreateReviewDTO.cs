@@ -8,18 +8,13 @@ namespace Domain
         [Required]
         public Guid ProductId { get; set; }
 
-        /// <summary>
-        /// User ID in UUID format (example: "ef654a7e-84ca-4b0c-93de-4abc7d3cbce8")
-        /// </summary>
-        [Required]
-        [RegularExpression(@"^[{(]?[0-9A-Fa-f]{8}(-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}[)}]?$",
-            ErrorMessage = "UserId must be in valid UUID format")]
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
 
         [Required]
         [Range(1, 5)]
         public int ReviewRating { get; set; }
 
+        [StringLength(1000, ErrorMessage = "Comment must not exceed 1000 characters.")]
         public string? Comment { get; set; }
 
         public static Review ToReview(CreateReviewDTO request)
@@ -28,7 +23,7 @@ namespace Domain
             {
                 Id = Guid.NewGuid(),
                 ProductId = request.ProductId,
-                UserId = request.UserId,
+                UserId = request.UserId.ToString(),
                 ReviewRating = request.ReviewRating,
                 Comment = request.Comment,
                 CreatedAt = DateTime.UtcNow

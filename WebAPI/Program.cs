@@ -31,15 +31,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "Craft Sweets",
         Version = "v1"
-    });
-
-    // add XML-documented comments to swagger
-   
-    // XML-comments Domain
-    var domainXmlFile = "Domain.xml";
-    var domainXmlPath = Path.Combine(AppContext.BaseDirectory, domainXmlFile);
-    options.IncludeXmlComments(domainXmlPath);
-    
+    });  
 });
 
 builder.Services.AddControllers().AddJsonOptions(options =>
