@@ -36,6 +36,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
 });
 
 builder.Services.AddEndpointsApiExplorer();
