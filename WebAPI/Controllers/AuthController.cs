@@ -6,6 +6,7 @@ namespace WebAPI
 
     [ApiController]
     [Route("auth")]
+
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
@@ -16,14 +17,14 @@ namespace WebAPI
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
+        public async Task<ActionResult> Register([FromBody] RegisterDTO registerDto)
         {
             var token = await _authService.Register(registerDto);
             return Ok(new { Token = token });
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
+        public async Task<ActionResult> Login([FromBody] LoginDTO loginDto)
         {
             var token = await _authService.Validate(loginDto);
             return Ok(new { Token = token });
@@ -36,7 +37,7 @@ namespace WebAPI
         }
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDto)
+        public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPasswordDto)
         {
             var token = await _authService.ForgotPasswordAsync(forgotPasswordDto.Email);
             return Ok(new { Message = "Password reset token sent", Token = token });

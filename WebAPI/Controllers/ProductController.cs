@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
@@ -39,6 +40,7 @@ namespace WebAPI
             return Ok(products);
         }
 
+        [Authorize]
         [HttpGet("latest")]
         public async Task<IActionResult> GetLatestProducts()
         {
@@ -53,6 +55,7 @@ namespace WebAPI
             return Ok(product);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> CreateProductAsync([FromForm][FromBody][Required] CreateProductDTO request)
         {
@@ -60,6 +63,7 @@ namespace WebAPI
             return Ok(product);
         }
 
+        [Authorize]
         [HttpPut("{id:Guid}")]
         public async Task<ActionResult> UpdateProductAsync([Required] Guid id, [FromForm][FromBody][Required] UpdateProductDTO request)
         {
@@ -67,6 +71,7 @@ namespace WebAPI
             return Ok(updatedProduct);
         }
 
+        [Authorize]
         [HttpDelete("{id:Guid}")]
         public async Task<ActionResult> DeleteProductAsync([Required] Guid id)
         {
