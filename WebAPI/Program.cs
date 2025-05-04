@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Options;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using WebAPI;
 
@@ -31,6 +32,14 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Craft Sweets",
         Version = "v1"
     });
+
+    // add XML-documented comments to swagger
+   
+    // XML-comments Domain
+    var domainXmlFile = "Domain.xml";
+    var domainXmlPath = Path.Combine(AppContext.BaseDirectory, domainXmlFile);
+    options.IncludeXmlComments(domainXmlPath);
+    
 });
 
 builder.Services.AddControllers().AddJsonOptions(options =>
