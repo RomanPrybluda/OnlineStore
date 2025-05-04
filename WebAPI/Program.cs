@@ -23,15 +23,6 @@ if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException("Connection string is not set. Check environment variables, appsettings.json, or secrets.");
 }
 
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "Craft Sweets",
-        Version = "v1"
-    });
-});
-
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -89,7 +80,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
+    option.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Craft Sweets",
+        Version = "v1"
+    });
+
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -99,6 +95,7 @@ builder.Services.AddSwaggerGen(option =>
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
+
     option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -174,6 +171,7 @@ using (var scope = app.Services.CreateScope())
     var appUserInitializer = new AppUserInitializer(context, userManager);
 }
 
+app.UseSwagger();
 
 app.UseSwaggerUI(options =>
 {
