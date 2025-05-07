@@ -1,6 +1,5 @@
 ﻿using Domain;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 [ApiController]
 [Produces("application/json")]
@@ -30,14 +29,14 @@ public class PromotionsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreatePromotion([FromForm][Required] CreatePromotionDTO dto)
+    public async Task<ActionResult> CreatePromotion([FromForm] CreatePromotionDTO dto)
     {
         var promotion = await _promotionService.CreatePromotionAsync(dto);
         return Ok(promotion);
     }
 
     [HttpPut("{id:Guid}")]
-    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm][Required] UpdatePromotionDTO dto)
+    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm] UpdatePromotionDTO dto)
     {
         var promotion = await _promotionService.UpdatePromotionAsync(id, dto);
         return Ok(promotion);
