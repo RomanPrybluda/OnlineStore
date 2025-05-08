@@ -17,19 +17,17 @@ namespace Domain
 
         public bool IsActive { get; set; }
 
+        [Range(0, int.MaxValue, ErrorMessage = "Stock quantity must be non-negative!")]
         public int StockQuantity { get; set; }
 
         public Guid CategoryId { get; set; }
 
-        public IFormFile MainProductImage { get; set; } = null!;
-
-        public List<IFormFile> ProductImages { get; set; } = null!;
+        
 
 
         public static Product ToProduct(
-            CreateProductDTO request,
-            string imageBaseName,
-            List<string> imageBaseNames)
+            CreateProductDTO request
+            )
         {
             return new Product
             {
@@ -37,8 +35,6 @@ namespace Domain
                 Name = request.Name,
                 Description = request.Description,
                 Price = request.Price,
-                MainImageBaseName = imageBaseName,
-                ImageBaseNames = imageBaseNames,
                 Sku = request.Sku,
                 StockQuantity = request.StockQuantity,
                 IsActive = request.IsActive,
