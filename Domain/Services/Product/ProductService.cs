@@ -158,15 +158,7 @@ namespace Domain
             if (category == null)
                 throw new CustomException(CustomExceptionType.NotFound, $"No category found with ID {request.CategoryId}");
 
-            string mainImageBaseName = string.Empty;
-            if (request.MainProductImage != null)
-                mainImageBaseName = await _imageService.UploadImageAsync(request.MainProductImage);
-
-            List<string> imageBaseNames = new();
-            if (request.ProductImages != null)
-                imageBaseNames = await _imageService.UploadMultipleImagesAsync(request.ProductImages);
-
-            var product = CreateProductDTO.ToProduct(request, mainImageBaseName, imageBaseNames);
+            var product = CreateProductDTO.ToProduct(request);
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -175,6 +167,28 @@ namespace Domain
             var productDTO = ProductDTO.FromProduct(createdProduct);
 
             return productDTO;
+        }
+
+        public async Task<ProductDTO> UploadProductImagesAsync(Guid id, AddProductImageDTO request)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+                throw new CustomException(CustomExceptionType.NotFound, $"Product with ID {id} not found.");
+
+            string mainImageBaseName = string.Empty;
+            if (request.MainProductImage != null)
+                mainImageBaseName = await _imageService.UploadImageAsync(request.MainProductImage);
+
+            List<string> imageBaseNames = new();
+            if (request.ProductImages != null)
+                imageBaseNames = await _imageService.UploadMultipleImagesAsync(request.ProductImages);
+
+            request.AddProductImage(product, mainImageBaseName, imageBaseNames);
+
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+
+            return ProductDTO.FromProduct(product);
         }
 
         public async Task<ProductDTO> UpdateProductAsync(Guid id, UpdateProductDTO request)

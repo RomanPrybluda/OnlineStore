@@ -21,15 +21,12 @@ namespace Domain
 
         public Guid CategoryId { get; set; }
 
-        public IFormFile MainProductImage { get; set; } = null!;
-
-        public List<IFormFile> ProductImages { get; set; } = null!;
+        
 
 
         public static Product ToProduct(
-            CreateProductDTO request,
-            string imageBaseName,
-            List<string> imageBaseNames)
+            CreateProductDTO request
+            )
         {
             return new Product
             {
@@ -37,8 +34,6 @@ namespace Domain
                 Name = request.Name,
                 Description = request.Description,
                 Price = request.Price,
-                MainImageBaseName = imageBaseName,
-                ImageBaseNames = imageBaseNames,
                 Sku = request.Sku,
                 StockQuantity = request.StockQuantity,
                 IsActive = request.IsActive,
