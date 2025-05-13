@@ -81,6 +81,12 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+   
+    // one time use after first deploy, to initialize the database with data about existing photos
+    // and to clean up outdated photos in future from server (wwwroot/images)
+    // need to be run before migrating the database
+    var initializerExistedPhotos = scope.ServiceProvider.GetRequiredService<BSExpPhotos.ImageInitializer>();
+    await initializerExistedPhotos.InitializeAsync();
 
     var migrator = context.Database.GetService<IMigrator>();
 

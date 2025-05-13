@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DAL;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +28,8 @@ namespace DAL
         public DbSet<OrderItem> OrderItems { get; set; }
 
         public DbSet<Promotion> Promotions { get; set; }
+
+        public DbSet<Photo> Photos { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
