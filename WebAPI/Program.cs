@@ -1,6 +1,10 @@
+using BSExpPhotos.Interfaces;
+using BSExpPhotos.Metadata;
+using BSExpPhotos.Services;
 using DAL;
 using Domain;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -58,6 +62,10 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
 builder.Services.AddScoped<PromotionService>();
+builder.Services.AddSingleton<IImageInfoExtractor, ImageInfoExtractor>(); 
+builder.Services.AddScoped<IImageUploadMetadataService, ImageUploadMetadataService>();
+builder.Services.AddScoped<IAsyncActionFilter, TrackImageUploadAttribute>();
+builder.Services.AddScoped<ImageMetadata>();
 
 builder.Services.Configure<ImageStorageSettings>(
     builder.Configuration.GetSection("ImageStorageSettings"));

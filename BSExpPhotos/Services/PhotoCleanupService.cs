@@ -6,7 +6,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class PhotoCleanupService
+namespace BSExpPhotos.Services
+{
+    /// <summary>
+    /// Service to clean up outdated photos from the server.
+    /// </summary>
+    /// <remarks>
+    /// This service checks for photos on the server that are not referenced in the database and deletes them.
+    /// </remarks>
+    public class PhotoCleanupService
 {
     private readonly OnlineStoreDbContext _dbContext;
     private readonly ILogger<PhotoCleanupService> _logger;
@@ -62,4 +70,5 @@ public class PhotoCleanupService
             _logger.LogError(ex, "Error during photo cleanup process.");
         }
     }
+}
 }
