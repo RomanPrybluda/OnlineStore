@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
+using WebAPI.Middleware;
+using WebAPI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -144,6 +146,7 @@ app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<ImageCleanupMiddleware>();
 
 app.UseStaticFiles();
 

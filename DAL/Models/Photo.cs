@@ -7,6 +7,7 @@ public class Photo
     public required string FileName { get; set; }
     public EntityType Type{ get; set;} = EntityType.None;
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+    public bool IsDeleted { get; set; } = false;
 
     public enum EntityType
     {

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BSExpPhotos
 {
-    // for one use in first deploy
+    // for one use in first deploy on prod
     public class ImageInitializer(OnlineStoreDbContext _dbContext)
     {
       
