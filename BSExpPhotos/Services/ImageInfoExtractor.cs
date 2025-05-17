@@ -15,8 +15,10 @@ namespace BSExpPhotos.Services
             return entity switch
             {
                 Product p => ExtractFromProduct(p),
-                Promotion promo => new List<string> { promo.ImageBannerName }.Where(x => !string.IsNullOrWhiteSpace(x)).ToList(),
-                Category cat => new List<string> { cat.ImageBaseName }.Where(x => !string.IsNullOrWhiteSpace(x)).ToList(),
+                Promotion promo => new List<string> { promo.ImageBannerName }
+                    .Where(x => !string.IsNullOrWhiteSpace(x)).ToList(),
+                Category cat => new List<string> { cat.ImageBaseName }
+                    .Where(x => !string.IsNullOrWhiteSpace(x)).ToList(),
                 _ => new List<string>()
             };
         }
