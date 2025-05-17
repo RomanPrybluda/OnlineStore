@@ -2,10 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using System;
+using System.Collections.Generic;
+using BSExpPhotos.Interfaces;
+
 
 namespace BSExpPhotos.Services;
 
-public class PhotoCleanupService
+public class PhotoCleanupService: IImageCleanupService
 {
     private readonly OnlineStoreDbContext _dbContext;
     private readonly ILogger<PhotoCleanupService> _logger;
@@ -45,18 +50,19 @@ public class PhotoCleanupService
             }
 
             // Get list of files on server
-            var serverFiles = Directory.GetFiles(_photoDirectory)
+            var serverFiles = await Task.Run(() => Directory.GetFiles(_photoDirectory)
                 .Select(Path.GetFileName)
-                .ToList();
+                .ToList());
 
             // Identify outdated files (files on server but not in database)
             var outdatedFiles = serverFiles
-                .Where(file => file != null && validFileNames.Contains(file) == false)
+                .Where(file => !string.IsNullOrWhiteSpace(file) && 
+                               !validFileNames.Contains(file))
                 .ToList();
 
             if (outdatedFiles.Count == 0)
             {
-                _logger.LogWarning("No outdated files found: {File}", _photoDirectory);
+                _logger.LogInformation("No outdated files found in directory: {Directory}", _photoDirectory);
                 return;
             }
 
@@ -69,7 +75,12 @@ public class PhotoCleanupService
                         continue;
 
                     var filePath = Path.Combine(_photoDirectory, file);
-                    File.Delete(filePath);
+                    if (File.Exists(filePath))
+                    {
+                        File.SetAttributes(filePath, FileAttributes.Normal);
+                        File.Delete(filePath);
+                    }
+                    
                     _logger.LogInformation("Deleted outdated file: {File}", file);
                 }
                 catch (Exception ex)
@@ -77,7 +88,7 @@ public class PhotoCleanupService
                     _logger.LogError(ex, "Failed to delete file: {File}", file);
                 }
 
-            await DeleteMarkedPhotosAsync();
+            await RemoveDeletedRecordsAsync();
 
             _logger.LogInformation("Photo cleanup completed. Deleted {Count} files.", outdatedFiles.Count);
         }
@@ -86,8 +97,48 @@ public class PhotoCleanupService
             _logger.LogError(ex, "Error during photo cleanup process.");
         }
     }
+    
+    public async Task MarkRemovedImagesAsDeletedAsync(
+        Guid entityId,
+        Photo.EntityType entityType,
+        List<string> newFileNames,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var existingFileNames = await _dbContext.Photos
+                .Where(p => p.EntityId == entityId &&
+                            p.Type == entityType &&
+                            !p.IsDeleted)
+                .Select(p => p.FileName)
+                .ToListAsync(cancellationToken);
 
-    private async Task DeleteMarkedPhotosAsync()
+            var removedFiles = existingFileNames.Except(newFileNames).ToList();
+
+            if (removedFiles.Count == 0)
+                return;
+
+            var photosToMarkDeleted = await _dbContext.Photos
+                .Where(p => removedFiles.Contains(p.FileName) &&
+                            p.EntityId == entityId &&
+                            p.Type == entityType)
+                .ToListAsync(cancellationToken);
+
+            foreach (var photo in photosToMarkDeleted)
+                photo.IsDeleted = true;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Marked the following images as deleted: {Files}", string.Join(", ", removedFiles));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while marking removed images as deleted for EntityId: {EntityId}", entityId);
+            throw;
+        }
+    }
+    
+    public async Task RemoveDeletedRecordsAsync()
     {
         var deletedFiles = await _dbContext.Photos
             .Where(p => p.IsDeleted == true)
@@ -96,4 +147,5 @@ public class PhotoCleanupService
 
         await _dbContext.SaveChangesAsync();
     }
+    
 }
