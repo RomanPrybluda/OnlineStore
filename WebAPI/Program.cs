@@ -1,5 +1,6 @@
 using BSExpPhotos.Interfaces;
 using BSExpPhotos.Services;
+using BSExpPhotos.Initial;
 using DAL;
 using Domain;
 using Microsoft.AspNetCore.Identity;
@@ -65,12 +66,16 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
 builder.Services.AddScoped<PromotionService>();
-builder.Services.AddSingleton<IImageInfoExtractor, ImageInfoExtractor>(); 
+builder.Services.AddScoped<IImageInfoExtractor, ImageInfoExtractor>(); 
 builder.Services.AddScoped<IImageUploadMetadataService, ImageUploadMetadataService>();
-builder.Services.AddScoped<IAsyncActionFilter, TrackImageUploadAttribute>();
-builder.Services.AddScoped<PhotoCleanupService>();
+builder.Services.AddScoped<TrackImageUploadAttribute>();
+builder.Services.AddScoped<IImageCleanupService,PhotoCleanupService>();
+builder.Services.AddScoped<ImageInitializer>();
+
 
 // Configure Quartz.NET
+builder.Services.AddScoped<PhotoCleanupJob>(); // for endpoint testing this schedule 
+
 builder.Services.AddQuartz(q =>
 {
     var jobKey = new JobKey("PhotoCleanupJob");
@@ -107,11 +112,7 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
    
-    // one time use after first deploy, to initialize the database with data about existing photos
-    // and to clean up outdated photos in future from server (wwwroot/images)
-    // need to be run before migrating the database
-    var initializerExistedPhotos = scope.ServiceProvider.GetRequiredService<BSExpPhotos.ImageInitializer>();
-    await initializerExistedPhotos.InitializeAsync();
+    
 
     var migrator = context.Database.GetService<IMigrator>();
 
@@ -129,6 +130,12 @@ using (var scope = app.Services.CreateScope())
             migrator.Migrate(migration);
         }
     }
+    
+    // one time use after first deploy, to initialize the database with data about existing photos
+    // and to clean up outdated photos in future from server (wwwroot/images)
+    // need to be run before migrating the database
+    //var initializerExistedPhotos = scope.ServiceProvider.GetRequiredService<ImageInitializer>();
+    //await initializerExistedPhotos.InitializeAsync();
 
     var categoryInitializer = new CategoryInitializer(context);
     categoryInitializer.InitializeCategories();

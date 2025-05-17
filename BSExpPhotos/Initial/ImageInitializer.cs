@@ -1,7 +1,7 @@
 ﻿using DAL;
 using Microsoft.EntityFrameworkCore;
 
-namespace BSExpPhotos;
+namespace BSExpPhotos.Initial;
 
 // for one use in first deploy on prod
 public class ImageInitializer(OnlineStoreDbContext _dbContext)
@@ -46,7 +46,15 @@ public class ImageInitializer(OnlineStoreDbContext _dbContext)
                 });
 
         // Добавим в БД
-        _dbContext.Photos.AddRange(storedImages);
-        await _dbContext.SaveChangesAsync();
+        var batchSize = 50;
+        for (int i = 0; i < storedImages.Count; i += batchSize)
+        {
+            var batch = storedImages.Skip(i).Take(batchSize).ToList();
+            _dbContext.Photos.AddRange(batch);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        //_dbContext.Photos.AddRange(storedImages);
+        //await _dbContext.SaveChangesAsync();
     }
 }

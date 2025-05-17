@@ -29,17 +29,18 @@ public class TrackImageUploadAttribute : IAsyncActionFilter
 
         var returnedEntity = objectResult.Value;
         var entityType = returnedEntity.GetType().Name; // Например: "Product" или "Promotion"
+        _logger.LogWarning("EntityType: {entityType}, ReturnedEntity: {returnedEntity}", entityType, returnedEntity.ToString());
         var metadata = new ImageMetadata
         {
             EntityType = entityType switch
             {
-                "Product" => Photo.EntityType.Product,
-                "Promotion" => Photo.EntityType.Promotion,
-                "Category" => Photo.EntityType.Category,
+                "ProductDTO" => Photo.EntityType.Product,
+                "PromotionDTO" => Photo.EntityType.Promotion,
+                "CategoryDTO" => Photo.EntityType.Category,
                 _ => Photo.EntityType.None
             },
             CreatedAt = DateTime.UtcNow,
-            FileNames = _imageInfoExtractor.ExtractImageFileNames(returnedEntity)
+            FileNames = await _imageInfoExtractor.ExtractImageFileNames(returnedEntity)
         };
 
 

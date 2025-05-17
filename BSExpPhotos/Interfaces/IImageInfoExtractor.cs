@@ -2,5 +2,5 @@
 
 public interface IImageInfoExtractor
 {
-    List<string> ExtractImageFileNames(object entity);
+    Task<List<string>> ExtractImageFileNames(object entity);
 }

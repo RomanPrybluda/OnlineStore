@@ -3,6 +3,7 @@ namespace DAL;
 
 public class Photo
 {
+    public Guid Id { get; set; }
     public required Guid EntityId { get; set; }
     public required string FileName { get; set; }
     public EntityType Type{ get; set;} = EntityType.None;
