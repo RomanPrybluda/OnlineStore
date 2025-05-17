@@ -1,5 +1,4 @@
 using BSExpPhotos.Interfaces;
-using BSExpPhotos.Metadata;
 using BSExpPhotos.Services;
 using DAL;
 using Domain;
@@ -13,6 +12,8 @@ using System.Text.Json.Serialization;
 using WebAPI;
 using WebAPI.Middleware;
 using WebAPI.Filters;
+using Quartz;
+using WebAPI.Schedulers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,7 +68,21 @@ builder.Services.AddScoped<PromotionService>();
 builder.Services.AddSingleton<IImageInfoExtractor, ImageInfoExtractor>(); 
 builder.Services.AddScoped<IImageUploadMetadataService, ImageUploadMetadataService>();
 builder.Services.AddScoped<IAsyncActionFilter, TrackImageUploadAttribute>();
-builder.Services.AddScoped<ImageMetadata>();
+builder.Services.AddScoped<PhotoCleanupService>();
+
+// Configure Quartz.NET
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("PhotoCleanupJob");
+    q.AddJob<PhotoCleanupJob>(opts => opts.WithIdentity(jobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("PhotoCleanupTrigger")
+        .WithCronSchedule("0 0 0 * * ?")); // Run every day at midnight
+
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 builder.Services.Configure<ImageStorageSettings>(
     builder.Configuration.GetSection("ImageStorageSettings"));

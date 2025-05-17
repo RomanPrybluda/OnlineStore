@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BSExpPhotos.Interfaces;
 
-namespace BSExpPhotos.Interfaces
+public interface IImageInfoExtractor
 {
-    public interface IImageInfoExtractor
-    {
-        List<string> ExtractImageFileNames(object entity);
-    }
+    List<string> ExtractImageFileNames(object entity);
 }
