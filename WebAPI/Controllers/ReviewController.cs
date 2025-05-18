@@ -31,7 +31,7 @@ namespace WebAPI
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateReviewAsync([FromForm][FromBody] CreateReviewDTO request)
+        public async Task<ActionResult> CreateReviewAsync([FromBody] CreateReviewDTO request)
         {
             var review = await _reviewService.CreateReviewAsync(request);
             return Ok(review);
