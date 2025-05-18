@@ -71,10 +71,12 @@ builder.Services.AddScoped<IImageUploadMetadataService, ImageUploadMetadataServi
 builder.Services.AddScoped<TrackImageUploadAttribute>();
 builder.Services.AddScoped<IImageCleanupService,PhotoCleanupService>();
 builder.Services.AddScoped<ImageInitializer>();
+// Регистрация сервиса, если не было
+//builder.Services.AddScoped<PhotoCleanupService>();
 
 
 // Configure Quartz.NET
-builder.Services.AddScoped<PhotoCleanupJob>(); // for endpoint testing this schedule 
+builder.Services.AddScoped<PhotoCleanupJob>(); 
 
 builder.Services.AddQuartz(q =>
 {
@@ -83,7 +85,7 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("PhotoCleanupTrigger")
-        .WithCronSchedule("0 0 0 * * ?")); // Run every day at midnight
+        .WithCronSchedule("0 0 0 * * ?")); // --every minutesRun every day at midnight: 0 0 0 * * ?
 
 });
 
@@ -131,11 +133,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
     
-    // one time use after first deploy, to initialize the database with data about existing photos
-    // and to clean up outdated photos in future from server (wwwroot/images)
-    // need to be run before migrating the database
-    //var initializerExistedPhotos = scope.ServiceProvider.GetRequiredService<ImageInitializer>();
-    //await initializerExistedPhotos.InitializeAsync();
+
 
     var categoryInitializer = new CategoryInitializer(context);
     categoryInitializer.InitializeCategories();
@@ -148,6 +146,12 @@ using (var scope = app.Services.CreateScope())
 
     var promotionInitializer = new PromotionInitializer(context);
     await promotionInitializer.InitializePromotions();
+    
+    // one time use after first deploy, to initialize the database with data about existing photos
+    // and to clean up outdated photos in future from server (wwwroot/images)
+    // need to be run before migrating the database
+    var initializerExistedPhotos = scope.ServiceProvider.GetRequiredService<ImageInitializer>();
+    await initializerExistedPhotos.InitializeAsync();
 }
 
 app.UseCors("AllowAll");

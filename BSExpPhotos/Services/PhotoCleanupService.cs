@@ -25,7 +25,7 @@ public class PhotoCleanupService: IImageCleanupService
         _logger = logger;
 
         // Use WebRootPath from IWebHostEnvironment to get the wwwroot directory
-        _photoDirectory = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/photos");
+        _photoDirectory = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images");
 
         // Alternative: If you need content root instead of wwwroot
         // _photoDirectory = Path.Combine(webHostEnvironment.ContentRootPath, "wwwroot/photos");
@@ -35,34 +35,63 @@ public class PhotoCleanupService: IImageCleanupService
     {
         try
         {
-            _logger.LogInformation("Starting photo cleanup process at {Time}", DateTime.UtcNow);
-
-            // Get list of filenames from database
-            var validFileNames = await _dbContext.Photos
-                .Where(p => p.IsDeleted == false)
-                .Select(p => p.FileName)
-                .ToListAsync();
-
             if (!Directory.Exists(_photoDirectory))
             {
                 _logger.LogWarning("Photo directory does not exist: {Directory}", _photoDirectory);
                 return;
             }
+            
+            _logger.LogInformation("Starting photo cleanup process at {Time}", DateTime.UtcNow);
 
-            // Get list of files on server
+            // Получить список всех допустимых имен файлов с суффиксами
+            var validBaseNames = await _dbContext.Photos
+                .Where(p => !p.IsDeleted)
+                .Select(p => Path.GetFileNameWithoutExtension(p.FileName)) // убираем расширение
+                .ToListAsync();
+
+            var validFileNameSet = validBaseNames
+                .SelectMany(baseName => new[]
+                {
+                    $"{baseName}-desktop.webp",
+                    $"{baseName}-mobile.webp",
+                    $"{baseName}-tablet.webp"
+                })
+                .ToHashSet(StringComparer.OrdinalIgnoreCase); // для ускорения поиска и без учета регистра
+
+            // Получаем файлы на сервере
             var serverFiles = await Task.Run(() => Directory.GetFiles(_photoDirectory)
                 .Select(Path.GetFileName)
                 .ToList());
 
-            // Identify outdated files (files on server but not in database)
+            // Вычисляем устаревшие файлы
             var outdatedFiles = serverFiles
-                .Where(file => !string.IsNullOrWhiteSpace(file) && 
-                               !validFileNames.Contains(file))
+                .Where(file => !string.IsNullOrWhiteSpace(file) && !validFileNameSet.Contains(file))
                 .ToList();
+
+            // Get list of filenames from database
+            // var validFileNames = await _dbContext.Photos
+            //     .Where(p => p.IsDeleted == false)
+            //     .Select(p => p.FileName)
+            //     .ToListAsync();
+
+           
+
+            // Get list of files on server
+            // var serverFiles = await Task.Run(() => Directory.GetFiles(_photoDirectory)
+            //     .Select(Path.GetFileName)
+            //     .ToList());
+            //
+            // // Identify outdated files (files on server but not in database)
+            // var outdatedFiles = serverFiles
+            //     .Where(file => !string.IsNullOrWhiteSpace(file) && 
+            //                    !validFileNames.Contains(file))
+            //     .ToList();
 
             if (outdatedFiles.Count == 0)
             {
-                _logger.LogInformation("No outdated files found in directory: {Directory}", _photoDirectory);
+                _logger.LogWarning("No outdated files found in directory: {Directory}", _photoDirectory);
+                await RemoveDeletedRecordsAsync();
+                _logger.LogInformation("Photo cleanup completed. Deleted records in db, but without outdated files.");
                 return;
             }
 
@@ -79,9 +108,14 @@ public class PhotoCleanupService: IImageCleanupService
                     {
                         File.SetAttributes(filePath, FileAttributes.Normal);
                         File.Delete(filePath);
+                        _logger.LogInformation("Deleted outdated file: {File}", file);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Outdated file not exist: {File}", file);
                     }
                     
-                    _logger.LogInformation("Deleted outdated file: {File}", file);
+                   
                 }
                 catch (Exception ex)
                 {

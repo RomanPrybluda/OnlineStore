@@ -1,14 +1,16 @@
-using BSExpPhotos.Services;
+using BSExpPhotos.Interfaces;
+
 
 namespace WebAPI.Schedulers;
 
 using Quartz;
 using System.Threading.Tasks;
 
-public class PhotoCleanupJob(PhotoCleanupService cleanupService) : IJob
+public class PhotoCleanupJob(IImageCleanupService cleanupService) : IJob
 {
     public async Task Execute(IJobExecutionContext context)
     {
+        
         await cleanupService.CleanUpOutdatedPhotosAsync();
     }
 }

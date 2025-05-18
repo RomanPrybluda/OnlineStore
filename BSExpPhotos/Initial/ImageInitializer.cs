@@ -44,6 +44,18 @@ public class ImageInitializer(OnlineStoreDbContext _dbContext)
                     EntityId = promo.Id,
                     Type = Photo.EntityType.Promotion
                 });
+        
+        // Category images
+        var categories = await _dbContext.Categories.ToListAsync();
+        foreach (var category in categories)
+            if (!string.IsNullOrEmpty(category.ImageBaseName))
+                storedImages.Add(new Photo
+                    {
+                        FileName = category.ImageBaseName,
+                        EntityId = category.Id,
+                        Type = Photo.EntityType.Category
+                    }
+                    );
 
         // Добавим в БД
         var batchSize = 50;

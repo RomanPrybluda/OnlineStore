@@ -24,26 +24,43 @@ namespace WebAPI.Middleware
 
             await _next(context);
 
-            if (!isDelete || context.Response.StatusCode != StatusCodes.Status204NoContent || controller == null || id == null)
+            if (!isDelete || context.Response.StatusCode != StatusCodes.Status204NoContent || controller == null ||
+                id == null)
+            {
+                _logger.LogInformation("""
+                                   !isDelete || context.Response.StatusCode != StatusCodes.Status204NoContent || controller == null ||
+                                   id == null
+                                   {isDelete} || {context.Response.StatusCode} != StatusCodes.Status204NoContent || {controller} == null ||
+                                   {id} == null
+                                   """, isDelete, context.Response.StatusCode, controller, id);
                 return;
+            }
+                
 
             var entityId = Guid.TryParse(id, out var parsed) ? parsed : Guid.Empty;
 
             if (entityId == Guid.Empty)
+            {
+                _logger.LogWarning("No entity found with id {id}", entityId);
                 return;
+            }
+                
 
 
             var entityType = controller.ToLower() switch
             {
                 "product" => Photo.EntityType.Product,
-                "promotion" => Photo.EntityType.Promotion,
+                "promotions" => Photo.EntityType.Promotion,
                 "category" => Photo.EntityType.Category,
                 _ => Photo.EntityType.None
             };
+            _logger.LogInformation("entity type for {controller}/{entityId}", controller, entityId);
 
             if (entityType == Photo.EntityType.None)
+            {
+                _logger.LogWarning("No entity type found for {controller}/{entityId}", controller, entityId);
                 return;
-
+            }
 
 
             try
@@ -52,7 +69,11 @@ namespace WebAPI.Middleware
                    .Where(p => p.EntityId == entityId);
 
                 if (!photos.Any())
+                {
+                    _logger.LogWarning("No photos found for {controller}/{id}", controller, id);
                     return;
+                }
+                    
 
                 foreach (var photo in photos)
                     photo.IsDeleted = true;
