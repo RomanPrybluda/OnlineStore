@@ -8,9 +8,11 @@ namespace Domain
 
         public string Name { get; set; } = string.Empty;
 
-        public decimal Price { get; set; }
-
         public string? MainImageBaseName { get; set; }
+
+        public string SortDescription { get; set; } = string.Empty;
+
+        public decimal Price { get; set; }
 
         public int SoldQuantity { get; set; }
 
@@ -22,6 +24,7 @@ namespace Domain
             {
                 Id = product.Id,
                 Name = product.Name,
+                SortDescription = product.SortDescription,
                 Price = product.Price,
                 MainImageBaseName = product.MainImageBaseName,
                 SoldQuantity = product.SoldQuantity,
