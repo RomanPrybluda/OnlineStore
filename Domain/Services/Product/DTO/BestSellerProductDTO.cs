@@ -14,6 +14,8 @@ namespace Domain
 
         public int SoldQuantity { get; set; }
 
+        public double Rating { get; set; }
+
         public static BestSellerProductDTO FromProduct(Product product)
         {
             return new BestSellerProductDTO
@@ -22,7 +24,8 @@ namespace Domain
                 Name = product.Name,
                 Price = product.Price,
                 MainImageBaseName = product.MainImageBaseName,
-                SoldQuantity = product.SoldQuantity
+                SoldQuantity = product.SoldQuantity,
+                Rating = product.Rating
             };
         }
     }
