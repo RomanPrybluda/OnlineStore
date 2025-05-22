@@ -8,7 +8,7 @@ namespace Domain
 
         public string Name { get; set; } = string.Empty;
 
-        public string MainImageName { get; set; } = string.Empty;
+        public string MainImageBaseName { get; set; } = string.Empty;
 
         public string SortDescription { get; set; } = string.Empty;
 
@@ -27,7 +27,7 @@ namespace Domain
                 SortDescription = product.SortDescription,
                 IsActive = product.IsActive,
                 Price = product.Price,
-                MainImageName = product.MainImageBaseName,
+                MainImageBaseName = product.MainImageBaseName,
                 Rating = product.Rating
             };
         }
