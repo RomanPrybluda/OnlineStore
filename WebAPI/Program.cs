@@ -69,10 +69,11 @@ builder.Logging.AddConsole();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin()
+    options.AddPolicy("AllowSpecificOrigin",
+        policy => policy.WithOrigins("https://online-store-git-page-home-doboshdiana404s-projects.vercel.app")
                         .AllowAnyMethod()
-                        .AllowAnyHeader());
+                        .AllowAnyHeader()
+                        .AllowCredentials());
 });
 
 var app = builder.Build();
@@ -112,7 +113,7 @@ using (var scope = app.Services.CreateScope())
     await promotionInitializer.InitializePromotions();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigin");
 
 //if (app.Environment.IsDevelopment())
 //{
