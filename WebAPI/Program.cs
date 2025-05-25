@@ -65,15 +65,17 @@ builder.Services.AddScoped<ImageService>();
 builder.Services.AddSingleton(resolver =>
     resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
 
-builder.Logging.AddConsole();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        policy => policy.WithOrigins("https://online-store-git-page-home-doboshdiana404s-projects.vercel.app")
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials());
+        policy => policy.WithOrigins(
+                "https://online-store-git-page-home-doboshdiana404s-projects.vercel.app",
+                "http://localhost:5173",  
+                "http://192.168.0.108:5173"  
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var app = builder.Build();
