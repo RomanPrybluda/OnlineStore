@@ -3,7 +3,7 @@ using DAL;
 
 namespace BSExpPhotos.Services;
 
-public class ImageUploadMetadataService(OnlineStoreDbContext _dbContext) : IImageUploadMetadataService
+public class ImageUploadMetadataService(OnlineStoreDbContext dbContext) : IImageUploadMetadataService
 {
     public async Task SaveImageInfoToDb(string fileName, Photo.EntityType entityType, Guid entityId,
         DateTime uploadedAt)
@@ -13,10 +13,11 @@ public class ImageUploadMetadataService(OnlineStoreDbContext _dbContext) : IImag
             FileName = fileName,
             EntityId = entityId,
             UploadedAt = uploadedAt,
-            Type = entityType
+            Type = entityType,
+            IsDeleted = true
         };
 
-        _dbContext.Photos.Add(record);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Photos.Add(record);
+        await dbContext.SaveChangesAsync();
     }
 }

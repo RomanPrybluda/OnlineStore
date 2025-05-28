@@ -1,6 +1,8 @@
-﻿namespace BSExpPhotos.Interfaces;
+﻿using DAL;
+
+namespace BSExpPhotos.Interfaces;
 
 public interface IImageInfoExtractor
 {
-    Task<List<string>> ExtractImageFileNames(object entity);
+    Task<List<string>> ExtractImageFileNames(Guid entityId, Photo.EntityType type);
 }

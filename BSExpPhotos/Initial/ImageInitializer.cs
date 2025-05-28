@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore;
 namespace BSExpPhotos.Initial;
 
 // for one use in first deploy on prod
-public class ImageInitializer(OnlineStoreDbContext _dbContext)
+public class ImageInitializer(OnlineStoreDbContext dbContext)
 {
     public async Task InitializeAsync()
     {
         var storedImages = new List<Photo>();
 
         // Product Main Image
-        var products = await _dbContext.Products.ToListAsync();
+        var products = await dbContext.Products.ToListAsync();
         foreach (var product in products)
         {
             if (!string.IsNullOrEmpty(product.MainImageBaseName))
@@ -35,7 +35,7 @@ public class ImageInitializer(OnlineStoreDbContext _dbContext)
         }
 
         // Promotion Image
-        var promotions = await _dbContext.Promotions.ToListAsync();
+        var promotions = await dbContext.Promotions.ToListAsync();
         foreach (var promo in promotions)
             if (!string.IsNullOrEmpty(promo.ImageBannerName))
                 storedImages.Add(new Photo
@@ -46,7 +46,7 @@ public class ImageInitializer(OnlineStoreDbContext _dbContext)
                 });
         
         // Category images
-        var categories = await _dbContext.Categories.ToListAsync();
+        var categories = await dbContext.Categories.ToListAsync();
         foreach (var category in categories)
             if (!string.IsNullOrEmpty(category.ImageBaseName))
                 storedImages.Add(new Photo
@@ -62,8 +62,8 @@ public class ImageInitializer(OnlineStoreDbContext _dbContext)
         for (int i = 0; i < storedImages.Count; i += batchSize)
         {
             var batch = storedImages.Skip(i).Take(batchSize).ToList();
-            _dbContext.Photos.AddRange(batch);
-            await _dbContext.SaveChangesAsync();
+            dbContext.Photos.AddRange(batch);
+            await dbContext.SaveChangesAsync();
         }
 
         //_dbContext.Photos.AddRange(storedImages);

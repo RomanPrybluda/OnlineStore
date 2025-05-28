@@ -172,7 +172,7 @@ app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
-app.UseMiddleware<ImageCleanupMiddleware>();
+app.UseMiddleware<ImageCleanupMiddlewareForDeleteMethods>();
 
 app.UseStaticFiles();
 

@@ -1,6 +1,5 @@
 ﻿using BSExpPhotos.Interfaces;
 using DAL;
-using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -18,28 +17,28 @@ public class ImageInfoExtractor : IImageInfoExtractor
     }
     
     
-    public async Task<List<string>> ExtractImageFileNames(object entity)
+    public async Task<List<string>> ExtractImageFileNames(Guid entityIdGuid, Photo.EntityType  type)
     {
-        return entity switch
+        return type switch
         {
-            ProductDTO p => await ExtractFromProductDTO(p),
-            PromotionDTO promo => await ExtractFromPromotionDTO(promo),
-            CategoryDTO cat => await ExtractFromCategoryDTO(cat),
+            Photo.EntityType.Product  => await ExtractFromProductDto(entityIdGuid),
+            Photo.EntityType.Promotion => await ExtractFromPromotionDto(entityIdGuid),
+            Photo.EntityType.Category => await ExtractFromCategoryDto(entityIdGuid),
             _ => new List<string>()
         };
     }
 
-    private async Task<List<string>> ExtractFromProductDTO(ProductDTO productDto)
+    private async Task<List<string>> ExtractFromProductDto(Guid entityIdGuid)
     {
         var result = new List<string>();
 
         var product = await _dbContext.Products
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == productDto.Id);
+            .FirstOrDefaultAsync(p => p.Id == entityIdGuid);
 
         if (product == null)
         {
-            _logger.LogWarning("Product with ID {ProductId} not found.", productDto.Id);
+            _logger.LogWarning("Product with ID {entityIdGuid} not found.", entityIdGuid);
             return result;
         }
 
@@ -52,17 +51,17 @@ public class ImageInfoExtractor : IImageInfoExtractor
         return result;
     }
 
-    private async Task<List<string>> ExtractFromPromotionDTO(PromotionDTO promotionDto)
+    private async Task<List<string>> ExtractFromPromotionDto(Guid entityIdGuid)
     {
         var result = new List<string>();
 
         var promotion = await _dbContext.Promotions
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == promotionDto.Id);
+            .FirstOrDefaultAsync(p => p.Id == entityIdGuid);
 
         if (promotion == null)
         {
-            _logger.LogWarning("Promotion with ID {PromotionId} not found.", promotionDto.Id);
+            _logger.LogWarning("Promotion with ID {entityIdGuid} not found.", entityIdGuid);
             return result;
         }
 
@@ -72,17 +71,17 @@ public class ImageInfoExtractor : IImageInfoExtractor
         return result;
     }
 
-    private async Task<List<string>> ExtractFromCategoryDTO(CategoryDTO categoryDto)
+    private async Task<List<string>> ExtractFromCategoryDto(Guid entityIdGuid)
     {
         var result = new List<string>();
 
         var category = await _dbContext.Categories
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == categoryDto.Id);
+            .FirstOrDefaultAsync(c => c.Id == entityIdGuid);
 
         if (category == null)
         {
-            _logger.LogWarning("Category with ID {CategoryId} not found.", categoryDto.Id);
+            _logger.LogWarning("Category with ID {entityIdGuid} not found.", entityIdGuid);
             return result;
         }
 

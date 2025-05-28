@@ -40,9 +40,9 @@ public class PromotionsController : ControllerBase
 
     [HttpPut("{id:Guid}")]
     [ServiceFilter(typeof(TrackImageUploadAttribute))]
-    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm] UpdatePromotionDTO dto)
+    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm] UpdatePromotionDTO request)
     {
-        var promotion = await _promotionService.UpdatePromotionAsync(id, dto);
+        var promotion = await _promotionService.UpdatePromotionAsync(id, request);
         return Ok(promotion);
     }
 

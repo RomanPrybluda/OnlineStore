@@ -1,23 +1,31 @@
-﻿using DAL;
+﻿using BSExpPhotos.Interfaces;
+using BSExpPhotos.Metadata;
+using BSExpPhotos.Services;
+using DAL;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Middleware
 {
-    public class ImageCleanupMiddleware
+    public class ImageCleanupMiddlewareForDeleteMethods
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<ImageCleanupMiddleware> _logger;
+        private readonly ILogger<ImageCleanupMiddlewareForDeleteMethods> _logger;
+        private readonly ImageInfoExtractor _imageInfoExtractor;
+        private readonly IImageUploadMetadataService _imageUploadMetadataService;
+        
 
-        public ImageCleanupMiddleware(RequestDelegate next, ILogger<ImageCleanupMiddleware> logger)
+        public ImageCleanupMiddlewareForDeleteMethods(RequestDelegate next, ILogger<ImageCleanupMiddlewareForDeleteMethods> logger, 
+            ImageInfoExtractor imageInfoExtractor, IImageUploadMetadataService imageUploadMetadataService)
         {
             _next = next;
             _logger = logger;
+            _imageInfoExtractor = imageInfoExtractor;
+            _imageUploadMetadataService = imageUploadMetadataService;
         }
 
         public async Task InvokeAsync(HttpContext context, OnlineStoreDbContext dbContext)
         {
             var isDelete = context.Request.Method.Equals("DELETE", StringComparison.OrdinalIgnoreCase);
-            var isUpdate = context.Request.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase);
             var routeData = context.GetRouteData();
 
             string? controller = routeData.Values["controller"]?.ToString();
@@ -30,24 +38,16 @@ namespace WebAPI.Middleware
                 _logger.LogWarning("No entity found with id {id}", entityId);
                 return;
             }
-
+            
             await _next(context);
             
-            if (isDelete)
+            if (isDelete && context.Response.StatusCode == StatusCodes.Status204NoContent)
             {
-                await HandleDeleteAsync(controller, entityId, dbContext);
+                await HandleDeleteAsync(controller, entityId);
             }
-            else if (isUpdate)
-            {
-                await HandleUpdateAsync(controller, entityId, dbContext);
-            }
-            
-            
-           
-
         }
 
-        private async Task HandleDeleteAsync(string? controller, Guid id, OnlineStoreDbContext dbContext)
+        private async Task HandleDeleteAsync(string? controller, Guid id)
         {
 
             var entityType = controller?.ToLower() switch
@@ -68,36 +68,39 @@ namespace WebAPI.Middleware
 
             try
             {
-                var photos = dbContext.Photos
-                   .Where(p => p.EntityId == id);
+                var metadata = new ImageMetadata
+                {
+                    EntityType = entityType,
+                    CreatedAt = DateTime.UtcNow,
+                    FileNames =  await _imageInfoExtractor.ExtractImageFileNames(id, entityType),
+                    EntityId = id
+                };
 
-                if (!photos.Any())
+                if (metadata.FileNames.Count == 0)
                 {
                     _logger.LogWarning("No photos found for {controller}/{id}", controller, id);
                     return;
                 }
                     
-
-                foreach (var photo in photos)
-                    photo.IsDeleted = true;
-
-                await dbContext.SaveChangesAsync();
+                // save info to db
+                foreach (var fileName in metadata.FileNames)
+                    await _imageUploadMetadataService.SaveImageInfoToDb(fileName, metadata.EntityType,
+                        metadata.EntityId, metadata.CreatedAt);
+                
                 _logger.LogInformation("Marked photos as deleted for entity {id} in {Controller}", id, controller);
 
             }
             catch (Exception ex)
             {
                 // Log the error or handle it as needed
-                _logger.LogError(ex, "Error while deleting info about photos from db for entity {id} in controller {Controller}", 
+                _logger.LogError(ex, "Error while marking as deleted info about photos for entity {id} in controller {Controller}", 
                     id, controller);
                 throw;
             }
         }
 
-        private async Task HandleUpdateAsync(string? controller, Guid id, OnlineStoreDbContext dbContext)
-        {
-            
-        }
+       
+       
     }
     
     

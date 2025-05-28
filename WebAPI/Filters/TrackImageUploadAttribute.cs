@@ -22,25 +22,32 @@ public class TrackImageUploadAttribute : IAsyncActionFilter
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
+        var routeValues = context.RouteData.Values;
+        string? controller = routeValues["controller"]?.ToString();
+        string? idStr = routeValues["id"]?.ToString();
+        var isPut = context.HttpContext.Request.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase);
+        
+        if (!isPut || string.IsNullOrEmpty(controller) || !Guid.TryParse(idStr, out Guid id))
+        {
+            await next();
+            return;
+        }
+        
+        var metadataOldObject = await HandleUpdateAsyncFirst(controller, id);
+        
         var executedContext = await next();
         // Получаем возвращённый результат
         if (executedContext.Result is not ObjectResult objectResult || objectResult.Value is null)
             return;
 
         var returnedEntity = objectResult.Value;
-        var entityType = returnedEntity.GetType().Name; // Например: "Product" или "Promotion"
+        var entityType = metadataOldObject.EntityType; // Например: "Product" или "Promotion"
         _logger.LogWarning("EntityType: {entityType}, ReturnedEntity: {returnedEntity}", entityType, returnedEntity.ToString());
         var metadata = new ImageMetadata
         {
-            EntityType = entityType switch
-            {
-                "ProductDTO" => Photo.EntityType.Product,
-                "PromotionDTO" => Photo.EntityType.Promotion,
-                "CategoryDTO" => Photo.EntityType.Category,
-                _ => Photo.EntityType.None
-            },
-            CreatedAt = DateTime.UtcNow,
-            FileNames = await _imageInfoExtractor.ExtractImageFileNames(returnedEntity)
+            EntityType = entityType,
+            CreatedAt = DateTime.UtcNow, // here we go
+            FileNames = await _imageInfoExtractor.ExtractImageFileNames(TODO, TODO)
         };
 
 
@@ -81,4 +88,53 @@ public class TrackImageUploadAttribute : IAsyncActionFilter
             metadata.FileNames);
 
     }
+    
+    private async Task<ImageMetadata> HandleUpdateAsyncFirst(string? controller, Guid id)
+    {
+        var entityType = controller?.ToLower() switch
+        {
+            "product" => Photo.EntityType.Product,
+            "promotions" => Photo.EntityType.Promotion,
+            "category" => Photo.EntityType.Category,
+            _ => Photo.EntityType.None
+        };
+        _logger.LogInformation("entity type for {controller}/{id}", controller, id);
+
+        if (entityType == Photo.EntityType.None)
+        {
+            _logger.LogWarning("No entity type found for {controller}/{id}", controller, id);
+            return new ImageMetadata()
+            {
+                EntityType = entityType,
+            };
+        }
+
+
+        try
+        {
+            var metadataOldObject = new ImageMetadata
+            {
+                EntityType = entityType,
+                CreatedAt = DateTime.UtcNow,
+                FileNames =  await _imageInfoExtractor.ExtractImageFileNames(id, entityType),
+                EntityId = id
+            };
+                
+
+            if (metadataOldObject.FileNames.Count == 0)
+            {
+                _logger.LogInformation("No photos found for updating {controller}/{id}", controller, id);
+            }
+                
+            return metadataOldObject;
+        }
+        catch (Exception ex)
+        {
+            // Log the error or handle it as needed
+            _logger.LogError(ex, " entity {id} in controller {Controller}", 
+                id, controller);
+            throw;
+        }
+    }
+
 }
