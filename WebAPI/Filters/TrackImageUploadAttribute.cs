@@ -40,6 +40,7 @@ public class TrackImageUploadAttribute : IAsyncActionFilter
         
         // get info about filenames before update or post
         var metadataOldObject = await HandleUpdateAsyncFirst(controller, id);
+        
       
 
         if (metadataOldObject.FileNames.Count == 0)
