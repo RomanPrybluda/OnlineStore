@@ -31,8 +31,7 @@ public class PromotionsController : ControllerBase
     }
 
     [HttpPost]
-    [ServiceFilter(typeof(TrackImageUploadAttribute))]
-    public async Task<ActionResult> CreatePromotion([FromForm] CreatePromotionDTO dto)
+    public async Task<ActionResult> CreatePromotion([FromForm][Required] CreatePromotionDTO dto)
     {
         var promotion = await _promotionService.CreatePromotionAsync(dto);
         return Ok(promotion);
@@ -40,7 +39,7 @@ public class PromotionsController : ControllerBase
 
     [HttpPut("{id:Guid}")]
     [ServiceFilter(typeof(TrackImageUploadAttribute))]
-    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm] UpdatePromotionDTO request)
+    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm][Required] UpdatePromotionDTO request)
     {
         var promotion = await _promotionService.UpdatePromotionAsync(id, request);
         return Ok(promotion);

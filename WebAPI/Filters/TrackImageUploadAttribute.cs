@@ -1,6 +1,8 @@
-﻿using BSExpPhotos.Interfaces;
+﻿using System.Diagnostics;
+using BSExpPhotos.Interfaces;
 using BSExpPhotos.Metadata;
 using DAL;
+using Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -25,67 +27,92 @@ public class TrackImageUploadAttribute : IAsyncActionFilter
         var routeValues = context.RouteData.Values;
         string? controller = routeValues["controller"]?.ToString();
         string? idStr = routeValues["id"]?.ToString();
-        var isPut = context.HttpContext.Request.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase);
+        var method = context.HttpContext.Request.Method;
         
-        if (!isPut || string.IsNullOrEmpty(controller) || !Guid.TryParse(idStr, out Guid id))
+       
+        
+        if ( (method != "PUT" && method != "POST")
+             || string.IsNullOrEmpty(controller) || !Guid.TryParse(idStr, out Guid id))
         {
             await next();
             return;
         }
         
+        // get info about filenames before update or post
         var metadataOldObject = await HandleUpdateAsyncFirst(controller, id);
+      
+
+        if (metadataOldObject.FileNames.Count == 0)
+        {
+            await next();
+            return;
+        }
+        
+        
         
         var executedContext = await next();
+        
+        
         // Получаем возвращённый результат
         if (executedContext.Result is not ObjectResult objectResult || objectResult.Value is null)
             return;
 
         var returnedEntity = objectResult.Value;
-        var entityType = metadataOldObject.EntityType; // Например: "Product" или "Promotion"
-        _logger.LogWarning("EntityType: {entityType}, ReturnedEntity: {returnedEntity}", entityType, returnedEntity.ToString());
-        var metadata = new ImageMetadata
+        var entityType = metadataOldObject.EntityType;
+        
+        // get id updated entity
+        Guid idUpdatedObject = returnedEntity switch
         {
-            EntityType = entityType,
-            CreatedAt = DateTime.UtcNow, // here we go
-            FileNames = await _imageInfoExtractor.ExtractImageFileNames(TODO, TODO)
-        };
-
-
-        var idProperty = returnedEntity.GetType().GetProperty("Id");
-        var entityId = idProperty?.GetValue(returnedEntity);
-
-        metadata.EntityId = entityId switch
-        {
-            Guid g => g,
-            string s when Guid.TryParse(s, out var parsed) => parsed,
+            PromotionDTO promotion => promotion.Id,
+            CategoryDTO category => category.Id,
+            ProductDTO product => product.Id,
             _ => Guid.Empty
         };
 
-        if (metadata.FileNames.Count == 0)
+        if (idUpdatedObject.Equals(Guid.Empty))
         {
-            _logger.LogWarning("No image file names found for {EntityType} with ID {EntityId}",
-                metadata.EntityType, metadata.EntityId);
+            _logger.LogWarning("ReturnedEntity: {returnedEntity} with null Guid.", returnedEntity);
             return;
         }
-
-
-        var service = context.HttpContext.RequestServices.GetRequiredService<IImageUploadMetadataService>();
-
-        foreach (var fileName in metadata.FileNames)
+        
+        
+        
+        _logger.LogInformation("EntityType: {entityType}, ReturnedEntity: {returnedEntity}, Guid: {idUpdatedObject}", 
+            entityType, returnedEntity.ToString(), idUpdatedObject);
+        // get info about entity (filenames) after update
+        var metadataUpdatedEntity = new ImageMetadata
         {
-            await service.SaveImageInfoToDb(fileName, metadata.EntityType,
-                metadata.EntityId, metadata.CreatedAt);
+            EntityType = entityType,
+            CreatedAt = DateTime.UtcNow, // here we go
+            EntityId = idUpdatedObject,
+            FileNames = await _imageInfoExtractor.ExtractImageFileNames(idUpdatedObject, entityType)
+        };
+        
+
+        if (metadataUpdatedEntity.FileNames.Count == 0)
+        {
+            _logger.LogWarning("No image file names found for {EntityType} with ID {EntityId}",
+                metadataUpdatedEntity.EntityType, metadataUpdatedEntity.EntityId);
+            return;
+        }
+        
+        var toDelete = GetFilesToDelete(metadataOldObject, metadataUpdatedEntity);
+
+        var uploadMetadataService = context.HttpContext.RequestServices.GetRequiredService<IImageUploadMetadataService>();
+
+        foreach (var fileName in toDelete)
+        {
+            await uploadMetadataService.SaveImageInfoToDb(fileName, entityType, metadataOldObject.EntityId,
+                metadataOldObject.CreatedAt);
 
             _logger.LogInformation(
                 "Image metadata saved for {EntityType} with ID {EntityId} with fileName {fileName}",
-                metadata.EntityType, metadata.EntityId, fileName);
+                metadataOldObject.EntityType, metadataOldObject.EntityId, fileName);
         }
 
         _logger.LogInformation("Finished processing image upload metadata for {EntityType} with ID {EntityId}",
-            metadata.EntityType, metadata.EntityId);
+            metadataOldObject.EntityType, metadataOldObject.EntityId);
         
-        await _imageCleanupService.MarkRemovedImagesAsDeletedAsync(metadata.EntityId, metadata.EntityType,
-            metadata.FileNames);
 
     }
     
@@ -136,5 +163,30 @@ public class TrackImageUploadAttribute : IAsyncActionFilter
             throw;
         }
     }
+
+    private List<string> GetFilesToDelete(ImageMetadata oldMetadata, ImageMetadata updatedMetadata)
+    {
+        var oldFileNames = oldMetadata.FileNames;
+        var updatedFileNames = updatedMetadata.FileNames;
+        
+        var oldSet = new HashSet<string>(oldFileNames);
+        var updatedSet = new HashSet<string>(updatedFileNames);
+        
+        // знаходимо пересічні файли, які залишаються
+        var remain = oldSet.Intersect(updatedSet).ToList();
+        
+        // new files only in updated
+        var added = updatedSet.Except(oldSet).ToList();
+        
+        // files to delete
+        var toDelete = oldSet.Except(updatedSet).ToList();
+        
+        _logger.LogInformation("Remain: {count} files, Added: {count} files, ToDelete: {count} files",
+            remain.Count, added.Count, toDelete.Count);
+        
+        return toDelete;
+        
+    }
+
 
 }

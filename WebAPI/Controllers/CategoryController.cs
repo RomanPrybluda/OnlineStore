@@ -34,7 +34,6 @@ namespace WebAPI
         }
 
         [HttpPost]
-        [ServiceFilter(typeof(TrackImageUploadAttribute))]
         public async Task<ActionResult> CreateCategoryAsync([FromForm][FromBody][Required] CreateCategoryDTO request)
         {
             var category = await _categoryService.CreateCategoryAsync(request);
