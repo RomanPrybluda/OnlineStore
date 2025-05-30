@@ -19,16 +19,13 @@ public class PhotoCleanupService: IImageCleanupService
     public PhotoCleanupService(
         OnlineStoreDbContext dbContext,
         ILogger<PhotoCleanupService> logger,
-        IHostEnvironment hostEnvironment) // Add this parameter
+        IHostEnvironment hostEnvironment) 
     {
         _dbContext = dbContext;
         _logger = logger;
 
         // Use WebRootPath from IWebHostEnvironment to get the wwwroot directory
         _photoDirectory = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images");
-
-        // Alternative: If you need content root instead of wwwroot
-        // _photoDirectory = Path.Combine(webHostEnvironment.ContentRootPath, "wwwroot/photos");
     }
 
     public async Task CleanUpOutdatedPhotosAsync()
@@ -44,12 +41,12 @@ public class PhotoCleanupService: IImageCleanupService
             _logger.LogInformation("Starting photo cleanup process at {Time}", DateTime.UtcNow);
 
             // Получить список всех допустимых имен файлов с суффиксами
-            var validBaseNames = await _dbContext.Photos
-                .Where(p => !p.IsDeleted)
+            var baseNamesForDelete = await _dbContext.Photos
+                .Where(p => p.IsDeleted)
                 .Select(p => Path.GetFileNameWithoutExtension(p.FileName)) // убираем расширение
                 .ToListAsync();
 
-            var validFileNameSet = validBaseNames
+            var validFileNameSet = baseNamesForDelete
                 .SelectMany(baseName => new[]
                 {
                     $"{baseName}-desktop.webp",
@@ -58,36 +55,8 @@ public class PhotoCleanupService: IImageCleanupService
                 })
                 .ToHashSet(StringComparer.OrdinalIgnoreCase); // для ускорения поиска и без учета регистра
 
-            // Получаем файлы на сервере
-            var serverFiles = await Task.Run(() => Directory.GetFiles(_photoDirectory)
-                .Select(Path.GetFileName)
-                .ToList());
-
-            // Вычисляем устаревшие файлы
-            var outdatedFiles = serverFiles
-                .Where(file => !string.IsNullOrWhiteSpace(file) && !validFileNameSet.Contains(file))
-                .ToList();
-
-            // Get list of filenames from database
-            // var validFileNames = await _dbContext.Photos
-            //     .Where(p => p.IsDeleted == false)
-            //     .Select(p => p.FileName)
-            //     .ToListAsync();
-
-           
-
-            // Get list of files on server
-            // var serverFiles = await Task.Run(() => Directory.GetFiles(_photoDirectory)
-            //     .Select(Path.GetFileName)
-            //     .ToList());
-            //
-            // // Identify outdated files (files on server but not in database)
-            // var outdatedFiles = serverFiles
-            //     .Where(file => !string.IsNullOrWhiteSpace(file) && 
-            //                    !validFileNames.Contains(file))
-            //     .ToList();
-
-            if (outdatedFiles.Count == 0)
+          
+            if (validFileNameSet.Count == 0)
             {
                 _logger.LogWarning("No outdated files found in directory: {Directory}", _photoDirectory);
                 await RemoveDeletedRecordsAsync();
@@ -97,10 +66,10 @@ public class PhotoCleanupService: IImageCleanupService
 
 
             // Delete outdated files
-            foreach (var file in outdatedFiles)
+            foreach (var file in validFileNameSet)
                 try
                 {
-                    if (file == null)
+                    if (file.Length == 0)
                         continue;
 
                     var filePath = Path.Combine(_photoDirectory, file);
@@ -124,7 +93,7 @@ public class PhotoCleanupService: IImageCleanupService
 
             await RemoveDeletedRecordsAsync();
 
-            _logger.LogInformation("Photo cleanup completed. Deleted {Count} files.", outdatedFiles.Count);
+            _logger.LogInformation("Photo cleanup completed. Deleted {Count} files.", validFileNameSet.Count);
         }
         catch (Exception ex)
         {

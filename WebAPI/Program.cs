@@ -71,6 +71,7 @@ builder.Services.AddScoped<IImageUploadMetadataService, ImageUploadMetadataServi
 builder.Services.AddScoped<TrackImageUploadAttribute>();
 builder.Services.AddScoped<IImageCleanupService,PhotoCleanupService>();
 builder.Services.AddScoped<ImageInitializer>();
+builder.Services.AddScoped<ImageCleanupMiddlewareForDeleteMethods>();
 // Регистрация сервиса, если не было
 //builder.Services.AddScoped<PhotoCleanupService>();
 
@@ -137,7 +138,7 @@ using (var scope = app.Services.CreateScope())
     }
     
 
-
+/*
     var categoryInitializer = new CategoryInitializer(context);
     categoryInitializer.InitializeCategories();
 
@@ -149,12 +150,7 @@ using (var scope = app.Services.CreateScope())
 
     var promotionInitializer = new PromotionInitializer(context);
     await promotionInitializer.InitializePromotions();
-    
-    // one time use after first deploy, to initialize the database with data about existing photos
-    // and to clean up outdated photos in future from server (wwwroot/images)
-    // need to be run before migrating the database
-    var initializerExistedPhotos = scope.ServiceProvider.GetRequiredService<ImageInitializer>();
-    await initializerExistedPhotos.InitializeAsync();
+   */ 
 }
 
 app.UseCors("AllowSpecificOrigin");

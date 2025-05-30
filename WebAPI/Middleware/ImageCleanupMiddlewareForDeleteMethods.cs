@@ -6,26 +6,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Middleware
 {
-    public class ImageCleanupMiddlewareForDeleteMethods
+    public class ImageCleanupMiddlewareForDeleteMethods: IMiddleware
     {
-        private readonly RequestDelegate _next;
         private readonly ILogger<ImageCleanupMiddlewareForDeleteMethods> _logger;
-        private readonly ImageInfoExtractor _imageInfoExtractor;
+        private readonly IImageInfoExtractor _imageInfoExtractor;
         private readonly IImageUploadMetadataService _imageUploadMetadataService;
         
 
-        public ImageCleanupMiddlewareForDeleteMethods(RequestDelegate next, ILogger<ImageCleanupMiddlewareForDeleteMethods> logger, 
-            ImageInfoExtractor imageInfoExtractor, IImageUploadMetadataService imageUploadMetadataService)
+        public ImageCleanupMiddlewareForDeleteMethods( ILogger<ImageCleanupMiddlewareForDeleteMethods> logger, 
+            IImageInfoExtractor imageInfoExtractor, IImageUploadMetadataService imageUploadMetadataService)
         {
-            _next = next;
             _logger = logger;
             _imageInfoExtractor = imageInfoExtractor;
             _imageUploadMetadataService = imageUploadMetadataService;
         }
 
-        public async Task InvokeAsync(HttpContext context, OnlineStoreDbContext dbContext)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             var isDelete = context.Request.Method.Equals("DELETE", StringComparison.OrdinalIgnoreCase);
+            
+            if (!isDelete)
+            {
+                await next(context);
+                return;
+            }
+            
             var routeData = context.GetRouteData();
 
             string? controller = routeData.Values["controller"]?.ToString();
@@ -36,18 +41,29 @@ namespace WebAPI.Middleware
             if (entityId == Guid.Empty)
             {
                 _logger.LogWarning("No entity found with id {id}", entityId);
+                await next(context);
                 return;
             }
+
+          
+            var metadata = await HandleDeleteAsync(controller, entityId);
             
-            await _next(context);
             
-            if (isDelete && context.Response.StatusCode == StatusCodes.Status204NoContent)
+            await next(context);
+
+            if (context.Response.StatusCode == StatusCodes.Status204NoContent)
             {
-                await HandleDeleteAsync(controller, entityId);
+                // save info to db
+                foreach (var fileName in metadata.FileNames)
+                    await _imageUploadMetadataService.SaveImageInfoToDb(fileName, metadata.EntityType,
+                        metadata.EntityId, metadata.CreatedAt);
+
+                _logger.LogInformation("Marked photos as deleted for entity {id} in {Controller}", id, controller);
             }
+
         }
 
-        private async Task HandleDeleteAsync(string? controller, Guid id)
+        private async Task<ImageMetadata> HandleDeleteAsync(string? controller, Guid id)
         {
 
             var entityType = controller?.ToLower() switch
@@ -62,7 +78,7 @@ namespace WebAPI.Middleware
             if (entityType == Photo.EntityType.None)
             {
                 _logger.LogWarning("No entity type found for {controller}/{id}", controller, id);
-                return;
+                return  new ImageMetadata();
             }
 
 
@@ -79,16 +95,11 @@ namespace WebAPI.Middleware
                 if (metadata.FileNames.Count == 0)
                 {
                     _logger.LogWarning("No photos found for {controller}/{id}", controller, id);
-                    return;
-                }
                     
-                // save info to db
-                foreach (var fileName in metadata.FileNames)
-                    await _imageUploadMetadataService.SaveImageInfoToDb(fileName, metadata.EntityType,
-                        metadata.EntityId, metadata.CreatedAt);
+                }
                 
-                _logger.LogInformation("Marked photos as deleted for entity {id} in {Controller}", id, controller);
-
+                return metadata;
+               
             }
             catch (Exception ex)
             {
@@ -97,10 +108,10 @@ namespace WebAPI.Middleware
                     id, controller);
                 throw;
             }
+            
         }
 
-       
-       
+     
     }
     
     
