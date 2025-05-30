@@ -97,14 +97,17 @@ builder.Services.AddScoped<ImageService>();
 builder.Services.AddSingleton(resolver =>
     resolver.GetRequiredService<IOptions<ImageStorageSettings>>().Value);
 
-builder.Logging.AddConsole();
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+    options.AddPolicy("AllowSpecificOrigin",
+        policy => policy.WithOrigins(
+                "https://online-store-git-page-home-doboshdiana404s-projects.vercel.app",
+                "http://localhost:5173",  
+                "http://192.168.0.108:5173"  
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var app = builder.Build();
@@ -154,7 +157,7 @@ using (var scope = app.Services.CreateScope())
     await initializerExistedPhotos.InitializeAsync();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigin");
 
 //if (app.Environment.IsDevelopment())
 //{

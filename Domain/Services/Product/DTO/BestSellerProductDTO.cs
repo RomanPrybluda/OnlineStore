@@ -8,11 +8,15 @@ namespace Domain
 
         public string Name { get; set; } = string.Empty;
 
-        public decimal Price { get; set; }
-
         public string? MainImageBaseName { get; set; }
 
+        public string SortDescription { get; set; } = string.Empty;
+
+        public decimal Price { get; set; }
+
         public int SoldQuantity { get; set; }
+
+        public double Rating { get; set; }
 
         public static BestSellerProductDTO FromProduct(Product product)
         {
@@ -20,9 +24,11 @@ namespace Domain
             {
                 Id = product.Id,
                 Name = product.Name,
+                SortDescription = product.SortDescription,
                 Price = product.Price,
                 MainImageBaseName = product.MainImageBaseName,
-                SoldQuantity = product.SoldQuantity
+                SoldQuantity = product.SoldQuantity,
+                Rating = product.Rating
             };
         }
     }

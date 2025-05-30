@@ -31,15 +31,14 @@ public class PromotionsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreatePromotion([FromForm][Required] CreatePromotionDTO dto)
+    public async Task<ActionResult> CreatePromotion([FromForm] CreatePromotionDTO dto)
     {
         var promotion = await _promotionService.CreatePromotionAsync(dto);
         return Ok(promotion);
     }
 
     [HttpPut("{id:Guid}")]
-    [ServiceFilter(typeof(TrackImageUploadAttribute))]
-    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm][Required] UpdatePromotionDTO request)
+    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm] UpdatePromotionDTO request)
     {
         var promotion = await _promotionService.UpdatePromotionAsync(id, request);
         return Ok(promotion);

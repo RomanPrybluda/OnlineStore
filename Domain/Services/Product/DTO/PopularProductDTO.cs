@@ -12,6 +12,8 @@ namespace Domain
 
         public string? MainImageBaseName { get; set; }
 
+        public string SortDescription { get; set; } = string.Empty;
+
         public double Rating { get; set; }
 
         public int Views { get; set; }
@@ -30,6 +32,7 @@ namespace Domain
                 Name = product.Name,
                 Price = product.Price,
                 MainImageBaseName = product.MainImageBaseName,
+                SortDescription = product.SortDescription,
                 Rating = product.Rating,
                 Views = product.Views,
                 FavoritesCount = product.FavoritedByUsers.Count,
