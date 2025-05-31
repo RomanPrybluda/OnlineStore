@@ -34,6 +34,8 @@ public class TrackImageUploadAttribute : IAsyncActionFilter
         if ( (method != "PUT" && method != "POST")
              || string.IsNullOrEmpty(controller) || !Guid.TryParse(idStr, out Guid id))
         {
+            _logger.LogWarning("method {method} not supported, controller {controller} and id {id}", 
+                method, controller, idStr);
             await next();
             return;
         }

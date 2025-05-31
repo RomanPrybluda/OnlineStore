@@ -73,7 +73,8 @@ namespace WebAPI.Middleware
                 "category" => Photo.EntityType.Category,
                 _ => Photo.EntityType.None
             };
-            _logger.LogInformation("entity type for {controller}/{id}", controller, id);
+            _logger.LogInformation("entity type for {controller}/{id}. Entity type: {entityType}",
+                controller, id, entityType);
 
             if (entityType == Photo.EntityType.None)
             {

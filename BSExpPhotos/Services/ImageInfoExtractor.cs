@@ -25,6 +25,7 @@ public class ImageInfoExtractor : IImageInfoExtractor
             Photo.EntityType.Promotion => await ExtractFromPromotionDto(entityIdGuid),
             Photo.EntityType.Category => await ExtractFromCategoryDto(entityIdGuid),
             _ => new List<string>()
+        
         };
     }
 

@@ -1,10 +1,8 @@
 using BSExpPhotos.Interfaces;
 using BSExpPhotos.Services;
-using BSExpPhotos.Initial;
 using DAL;
 using Domain;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -70,10 +68,8 @@ builder.Services.AddScoped<IImageInfoExtractor, ImageInfoExtractor>();
 builder.Services.AddScoped<IImageUploadMetadataService, ImageUploadMetadataService>();
 builder.Services.AddScoped<TrackImageUploadAttribute>();
 builder.Services.AddScoped<IImageCleanupService,PhotoCleanupService>();
-builder.Services.AddScoped<ImageInitializer>();
 builder.Services.AddScoped<ImageCleanupMiddlewareForDeleteMethods>();
-// Регистрация сервиса, если не было
-//builder.Services.AddScoped<PhotoCleanupService>();
+
 
 
 // Configure Quartz.NET
@@ -86,7 +82,7 @@ builder.Services.AddQuartz(q =>
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("PhotoCleanupTrigger")
-        .WithCronSchedule("0 0 0 * * ?")); // --every minutesRun every day at midnight: 0 0 0 * * ?
+        .WithCronSchedule("0 0 0 * * ?")); // --Run every day at midnight: 0 0 0 * * ?
 
 });
 
@@ -138,7 +134,7 @@ using (var scope = app.Services.CreateScope())
     }
     
 
-/*
+
     var categoryInitializer = new CategoryInitializer(context);
     categoryInitializer.InitializeCategories();
 
@@ -150,7 +146,7 @@ using (var scope = app.Services.CreateScope())
 
     var promotionInitializer = new PromotionInitializer(context);
     await promotionInitializer.InitializePromotions();
-   */ 
+    
 }
 
 app.UseCors("AllowSpecificOrigin");
