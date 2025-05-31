@@ -1,6 +1,7 @@
 ﻿using Domain;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using WebAPI.Filters;
 
 namespace WebAPI
 {
@@ -61,6 +62,7 @@ namespace WebAPI
         }
 
         [HttpPost("{id:Guid}/images")]
+        [ServiceFilter(typeof(TrackImageUploadAttribute))]
         public async Task<ActionResult> UploadProductImages([Required] Guid id,[FromForm][Required] AddProductImageDTO request)
         {
             var product = await _productService.UploadProductImagesAsync(id, request);
@@ -69,6 +71,7 @@ namespace WebAPI
 
 
         [HttpPut("{id:Guid}")]
+        [ServiceFilter(typeof(TrackImageUploadAttribute))]
         public async Task<ActionResult> UpdateProductAsync([Required] Guid id, [FromForm][FromBody][Required] UpdateProductDTO request)
         {
             var updatedProduct = await _productService.UpdateProductAsync(id, request);
