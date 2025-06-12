@@ -70,6 +70,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         policy => policy.WithOrigins(
                 "https://online-store-git-page-home-doboshdiana404s-projects.vercel.app",
+                "https://online-store-git-page-catalog-doboshdiana404s-projects.vercel.app/",
                 "http://localhost:5173",  
                 "http://192.168.0.108:5173"  
             )
