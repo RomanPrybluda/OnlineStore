@@ -1,3 +1,5 @@
+using BSExpPhotos.Interfaces;
+using BSExpPhotos.Services;
 using DAL;
 using Domain;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +9,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
 using WebAPI;
+using WebAPI.Middleware;
+using WebAPI.Filters;
+using Quartz;
+using WebAPI.Schedulers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +64,29 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<ReviewService>();
 builder.Services.AddScoped<AppUserService>();
 builder.Services.AddScoped<PromotionService>();
+builder.Services.AddScoped<IImageInfoExtractor, ImageInfoExtractor>(); 
+builder.Services.AddScoped<IImageUploadMetadataService, ImageUploadMetadataService>();
+builder.Services.AddScoped<TrackImageUploadAttribute>();
+builder.Services.AddScoped<IImageCleanupService,PhotoCleanupService>();
+builder.Services.AddScoped<ImageCleanupMiddlewareForDeleteMethods>();
+
+
+
+// Configure Quartz.NET
+builder.Services.AddScoped<PhotoCleanupJob>(); 
+
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("PhotoCleanupJob");
+    q.AddJob<PhotoCleanupJob>(opts => opts.WithIdentity(jobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("PhotoCleanupTrigger")
+        .WithCronSchedule("0 0 0 * * ?")); // --Run every day at midnight: 0 0 0 * * ?
+
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 builder.Services.Configure<ImageStorageSettings>(
     builder.Configuration.GetSection("ImageStorageSettings"));
@@ -85,6 +114,8 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+   
+    
 
     var migrator = context.Database.GetService<IMigrator>();
 
@@ -102,6 +133,8 @@ using (var scope = app.Services.CreateScope())
             migrator.Migrate(migration);
         }
     }
+    
+
 
     var categoryInitializer = new CategoryInitializer(context);
     categoryInitializer.InitializeCategories();
@@ -114,6 +147,7 @@ using (var scope = app.Services.CreateScope())
 
     var promotionInitializer = new PromotionInitializer(context);
     await promotionInitializer.InitializePromotions();
+    
 }
 
 app.UseCors("AllowSpecificOrigin");
@@ -134,6 +168,7 @@ app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<ImageCleanupMiddlewareForDeleteMethods>();
 
 app.UseStaticFiles();
 
