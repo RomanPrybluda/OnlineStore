@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Options;
 using System.Text.Json.Serialization;
+using AuthLib;
 using WebAPI;
 using WebAPI.Middleware;
 using WebAPI.Filters;
@@ -69,6 +70,11 @@ builder.Services.AddScoped<IImageUploadMetadataService, ImageUploadMetadataServi
 builder.Services.AddScoped<TrackImageUploadAttribute>();
 builder.Services.AddScoped<IImageCleanupService,PhotoCleanupService>();
 builder.Services.AddScoped<ImageCleanupMiddlewareForDeleteMethods>();
+builder.Services.AddScoped<TokenService>();
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddSingleton<IRefreshTokenStore, InMemoryRefreshTokenStore>();
 
 
 
@@ -134,7 +140,7 @@ using (var scope = app.Services.CreateScope())
     }
     
 
-
+/*
     var categoryInitializer = new CategoryInitializer(context);
     categoryInitializer.InitializeCategories();
 
@@ -146,7 +152,7 @@ using (var scope = app.Services.CreateScope())
 
     var promotionInitializer = new PromotionInitializer(context);
     await promotionInitializer.InitializePromotions();
-    
+ */   
 }
 
 app.UseCors("AllowSpecificOrigin");
