@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AuthLib;
 
-public class TokenService
+public class TokenService:ITokenService
 {
         private readonly JwtOptions _options;
         private readonly SymmetricSecurityKey _key;
@@ -41,12 +41,25 @@ public class TokenService
             return tokenHandler.WriteToken(token);
         }
         
-        public string GenerateRefreshToken()
+        public string GenerateRefreshToken(Guid userId)
         {
-            return Guid.NewGuid().ToString("N"); // можно добавить SecureRandom при желании
+            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);
+            var claims = new Claim[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(_options.RefreshTokenExpirationDays),
+                Issuer = _options.Issuer,
+                Audience = _options.Audience,
+                SigningCredentials = creds
+            };
+            
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
         
-        public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+        public ClaimsPrincipal? GetPrincipalFromToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -56,7 +69,7 @@ public class TokenService
                 ValidAudience = _options.Audience,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = _key,
-                ValidateLifetime = false, // важно: валидируем даже просроченный токен
+                ValidateLifetime = true,
             };
 
             var handler = new JwtSecurityTokenHandler();
