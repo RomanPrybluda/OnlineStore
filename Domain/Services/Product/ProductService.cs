@@ -40,6 +40,12 @@ namespace Domain
             if (filter.IsActive.HasValue)
                 query = query.Where(p => p.IsActive == filter.IsActive.Value);
 
+            if (filter.IsSugarFree.HasValue)
+                query = query.Where(p => p.IsSugarFree == filter.IsSugarFree.Value);
+
+            if (filter.IsGlutenFree.HasValue)
+                query = query.Where(p => p.IsGlutenFree == filter.IsGlutenFree.Value);
+
             if (filter.SortBy.HasValue)
             {
                 bool isAscending = filter.SortDirection == SortDirection.Asc;
@@ -84,6 +90,7 @@ namespace Domain
                 totalItems
             );
         }
+
 
         public async Task<ProductByIdDTO> GetProductByIdAsync(Guid id)
         {

@@ -25,6 +25,16 @@ namespace Domain
 
         public List<IFormFile>? ProductImages { get; set; }
 
+        public string? Composition { get; set; }
+
+        public string? Allergens { get; set; }
+
+        public double? WeightInGrams { get; set; }
+
+        public bool? IsSugarFree { get; set; }
+
+        public bool? IsGlutenFree { get; set; }
+
         public void UpdateProduct(
             Product product,
             string imageBaseName,
@@ -37,6 +47,11 @@ namespace Domain
             product.Sku = Sku ?? product.Sku;
             product.StockQuantity = StockQuantity ?? product.StockQuantity;
             product.CategoryId = CategoryId ?? product.CategoryId;
+            product.Composition = Composition ?? product.Composition;
+            product.Allergens = Allergens ?? product.Allergens;
+            product.WeightInGrams = WeightInGrams ?? product.WeightInGrams;
+            product.IsSugarFree = IsSugarFree ?? product.IsSugarFree;
+            product.IsGlutenFree = IsGlutenFree ?? product.IsGlutenFree;
             product.IsActive = IsActive ?? product.IsActive;
             product.MainImageBaseName = imageBaseName;
             product.ImageBaseNames = imageBaseNames;

@@ -127,6 +127,20 @@ namespace Domain
             "Chocolate Pudding", "Tutti Frutti", "Raspberry Coulis", "Espresso Brownie", "Mocha Cake", "Danish Pastry", "Funnel Cake", "S'mores", "Cinnamon Doughnut", "Caramel Pudding"
         };
 
+        private static readonly string[] ExampleCompositions = new[]
+        {
+            "Sugar, Cocoa Butter, Milk Powder, Cocoa Mass, Emulsifier (Soy Lecithin), Natural Flavor (Vanilla)",
+            "Wheat Flour, Sugar, Vegetable Oil, Cocoa Powder, Salt, Baking Powder",
+            "Corn Syrup, Gelatin, Modified Corn Starch, Artificial Flavors, Food Coloring"
+        };
+
+        private static readonly string[] ExampleAllergens = new[]
+        {
+            "Contains milk, soy, and gluten",
+            "May contain traces of nuts",
+            "Produced in a facility that processes peanuts and tree nuts"
+        };
+
         public ProductInitializer(OnlineStoreDbContext context)
         {
             _context = context;
@@ -167,6 +181,9 @@ namespace Domain
                     var views = _random.Next(20, 100);
                     var createdAt = DateTime.UtcNow.AddDays(-_random.Next(1, 100));
                     var updatedAt = createdAt.AddDays(_random.Next(0, 30));
+                    var composition = ExampleCompositions[_random.Next(ExampleCompositions.Length)];
+                    var allergens = ExampleAllergens[_random.Next(ExampleAllergens.Length)];
+                    var weightInGrams = Math.Round(_random.NextDouble() * (1000 - 50) + 50, 2);
 
                     var product = new Product
                     {
@@ -187,7 +204,12 @@ namespace Domain
                         TotalVotes = _random.Next(0, 500),
                         SoldQuantity = _random.Next(0, 101),
                         CreatedAt = createdAt,
-                        UpdateAt = updatedAt
+                        UpdateAt = updatedAt,
+                        Composition = composition,
+                        Allergens = allergens,
+                        WeightInGrams = weightInGrams,
+                        IsSugarFree = _random.Next(0, 2) == 1,
+                        IsGlutenFree = _random.Next(0, 2) == 1,
                     };
 
                     _context.Products.Add(product);
