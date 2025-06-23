@@ -48,6 +48,24 @@ namespace DAL
             builder.Property(p => p.IsActive)
                 .HasDefaultValue(true);
 
+            builder.Property(p => p.Composition)
+                .HasMaxLength(2000);
+
+            builder.Property(p => p.Allergens)
+                .HasMaxLength(1000);
+
+            builder.Property(p => p.WeightInGrams)
+                .IsRequired()
+                .HasDefaultValue(0);
+
+            builder.Property(p => p.IsSugarFree)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            builder.Property(p => p.IsGlutenFree)
+                .IsRequired()
+                .HasDefaultValue(false);
+
             builder.HasOne(p => p.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId)

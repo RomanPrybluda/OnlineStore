@@ -42,5 +42,16 @@
 
         public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
 
+        public string? Composition { get; set; }
+
+        public string? Allergens { get; set; }
+
+        public double WeightInGrams { get; set; }
+
+        public bool IsSugarFree { get; set; }
+
+        public bool IsGlutenFree { get; set; }
+
+
     }
 }
