@@ -73,6 +73,20 @@ namespace Domain
                         Description = "Beautifully packaged sweet gift sets",
                         ImageBaseName = "gift_sets"
                     },
+                    new Category
+                    {
+                        Id = Guid.Parse("22222222-1119-1111-1111-111111111009"),
+                        Name = "Vegan sweets",
+                        Description = "Delicious sweets suitable for a vegan lifestyle",
+                        ImageBaseName = "vegan_sweets"
+                    },
+                    new Category
+                    {
+                        Id = Guid.Parse("22222222-1120-1111-1111-111111111010"),
+                        Name = "Diabetic-friendly sweets",
+                        Description = "Sweets with reduced sugar suitable for diabetics",
+                        ImageBaseName = "diabetic_sweets"
+                    }
                 };
 
                 _context.Categories.AddRange(categories);
