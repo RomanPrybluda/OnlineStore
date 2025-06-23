@@ -32,6 +32,25 @@ namespace Domain
             return await _userManager.Users.ToListAsync();
         }
 
+        public async Task<IdentityResult> RemoveRefreshFromUserInLogout(ClaimsPrincipal principal)
+        {
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (userId == null)
+                throw new Exception("User id from principal is empty");
+
+            var user = await GetUserByIdAsync(userId);
+            
+            if (user == null)
+                throw new Exception("User not found");
+            
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.Now;
+            
+            return await _userManager.UpdateAsync(user);
+
+        }
+
         public async Task<AppUser?> GetUserByIdAsync(string userId)
         {
             return await _userManager.FindByIdAsync(userId);
@@ -59,7 +78,8 @@ namespace Domain
             };
             try{
                 var accessToken = _tokenService.GenerateAccessToken(claims);
-                var refreshToken = _tokenService.GenerateRefreshToken(new Guid());
+                var refreshToken = _tokenService.GenerateRefreshToken(Guid.Parse(user.Id));
+                
                 _cookieHelper.AppendAuthCookies(response, accessToken, refreshToken);
                 
                 var result = await AddRefreshTokenToUser(user, refreshToken);

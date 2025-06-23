@@ -70,18 +70,22 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
-        var accessToken = Request.Cookies["access_token"];
+        var refreshToken = Request.Cookies["refresh_token"];
        
-        var principal = _tokenService.GetPrincipalFromToken(accessToken ?? "");
-        if (principal != null)
-        {
-            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            //db del refresh
-        }
-
+        var principal = _tokenService.GetPrincipalFromToken( refreshToken ?? "");
+        
+        if (principal == null)
+            throw new Exception("Failed to get principal");
+        
+        var result = await _appUserService.RemoveRefreshFromUserInLogout(principal); //db del refresh
+           
+        if (!result.Succeeded)
+            throw new Exception("deleting refresh token failed");
+           
         _cookieHelper.ClearAuthCookies(Response);
+        
         return Ok();
     }
 }

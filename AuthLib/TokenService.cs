@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -59,7 +58,7 @@ public class TokenService:ITokenService
             return tokenHandler.WriteToken(token);
         }
         
-        public ClaimsPrincipal? GetPrincipalFromToken(string token)
+        public ClaimsPrincipal?  GetPrincipalFromToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
