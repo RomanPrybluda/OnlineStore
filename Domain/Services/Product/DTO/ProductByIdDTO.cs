@@ -28,6 +28,16 @@ namespace Domain
 
         public Guid CategoryId { get; set; }
 
+        public string? Composition { get; set; }
+
+        public string? Allergens { get; set; }
+
+        public double WeightInGrams { get; set; }
+
+        public bool IsSugarFree { get; set; }
+
+        public bool IsGlutenFree { get; set; }
+
         public static ProductByIdDTO FromProduct(Product product)
         {
             return new ProductByIdDTO
@@ -43,6 +53,11 @@ namespace Domain
                 StockQuantity = product.StockQuantity,
                 IsActive = product.IsActive,
                 CategoryId = product.CategoryId,
+                Composition = product.Composition,
+                Allergens = product.Allergens,
+                WeightInGrams = product.WeightInGrams,
+                IsSugarFree = product.IsSugarFree,
+                IsGlutenFree = product.IsGlutenFree,
                 Reviews = product.Reviews.Select(ReviewDTO.FromReview).ToList()
             };
         }

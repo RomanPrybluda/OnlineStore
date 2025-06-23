@@ -27,6 +27,16 @@ namespace Domain
 
         public Guid CategoryId { get; set; }
 
+        public string? Composition { get; set; }
+
+        public string? Allergens { get; set; }
+
+        [Range(0.0, double.MaxValue, ErrorMessage = "Weight must be non-negative.")]
+        public double WeightInGrams { get; set; }
+
+        public bool IsSugarFree { get; set; }
+
+        public bool IsGlutenFree { get; set; }
 
         public static Product ToProduct(
             CreateProductDTO request
@@ -43,6 +53,11 @@ namespace Domain
                 StockQuantity = request.StockQuantity,
                 IsActive = request.IsActive,
                 CategoryId = request.CategoryId,
+                Composition = request.Composition,
+                Allergens = request.Allergens,
+                WeightInGrams = request.WeightInGrams,
+                IsSugarFree = request.IsSugarFree,
+                IsGlutenFree = request.IsGlutenFree,
                 Rating = 0,
                 TotalVotes = 0
             };

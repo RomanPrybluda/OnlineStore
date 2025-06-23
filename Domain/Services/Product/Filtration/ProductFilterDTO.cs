@@ -23,7 +23,10 @@
         public ProductSortBy? SortBy { get; set; }
 
         public SortDirection? SortDirection { get; set; }
+
+        public bool? IsSugarFree { get; set; }
+
+        public bool? IsGlutenFree { get; set; }
+
     }
-
-
 }
