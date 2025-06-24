@@ -1,6 +1,7 @@
 ﻿using Domain;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using WebAPI.Filters;
 
 namespace WebAPI
 {
@@ -40,6 +41,7 @@ namespace WebAPI
         }
 
         [HttpPut("{id:Guid}")]
+        [ServiceFilter(typeof(TrackImageUploadAttribute))]
         public async Task<ActionResult> UpdateCategoryAsync(Guid id, [FromForm][FromBody][Required] UpdateCategoryDTO request)
         {
             var category = await _categoryService.UpdateCategoryAsync(id, request);

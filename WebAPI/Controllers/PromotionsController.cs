@@ -1,5 +1,7 @@
 ﻿using Domain;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using WebAPI.Filters;
 
 [ApiController]
 [Produces("application/json")]
@@ -36,9 +38,10 @@ public class PromotionsController : ControllerBase
     }
 
     [HttpPut("{id:Guid}")]
-    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm] UpdatePromotionDTO dto)
+    [ServiceFilter(typeof(TrackImageUploadAttribute))]
+    public async Task<ActionResult> UpdatePromotion(Guid id, [FromForm] UpdatePromotionDTO request)
     {
-        var promotion = await _promotionService.UpdatePromotionAsync(id, dto);
+        var promotion = await _promotionService.UpdatePromotionAsync(id, request);
         return Ok(promotion);
     }
 
