@@ -31,26 +31,22 @@ namespace Domain
 
         public List<string>? ProductIds { get; set; } = new();
 
-        public static Promotion ToPromotion(UpdatePromotionDTO request, string imageBaseName)
+        public static void ToPromotion(UpdatePromotionDTO request, string imageBaseName, Promotion promotion)
         {
-            return new Promotion
-            {
-                Id = Guid.NewGuid(),
-                Name = request.Name,
-                Description = request.Description,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                IsActive = request.IsActive,
-                ImageBannerName = imageBaseName,
-                CategoryIds = request.CategoryIds?
-                .Where(id => !string.IsNullOrWhiteSpace(id) && Guid.TryParse(id, out _))
-                .Select(Guid.Parse)
-                .ToList(),
-                ProductIds = request.ProductIds?
-                .Where(id => !string.IsNullOrWhiteSpace(id) && Guid.TryParse(id, out _))
-                .Select(Guid.Parse)
-                .ToList()
-            };
+            promotion.Name = request.Name;
+            promotion.StartDate = request.StartDate;
+            promotion.EndDate = request.EndDate;
+            promotion.Description = request.Description;
+            promotion.IsActive = request.IsActive;
+            promotion.ImageBannerName = imageBaseName;
+            promotion.CategoryIds = request.CategoryIds?
+                    .Where(id => !string.IsNullOrWhiteSpace(id) && Guid.TryParse(id, out _))
+                    .Select(Guid.Parse)
+                    .ToList();
+            promotion.ProductIds = request.ProductIds?
+                    .Where(id => !string.IsNullOrWhiteSpace(id) && Guid.TryParse(id, out _))
+                    .Select(Guid.Parse)
+                    .ToList();
         }
 
     }

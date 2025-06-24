@@ -98,7 +98,7 @@ namespace Domain
                     $"Promotion not found with ID {id}");
 
             var existingPromotion = await _context.Promotions
-                .FirstOrDefaultAsync(c => c.Name == request.Name);
+                .FirstOrDefaultAsync(c => c.Name == request.Name && c.Id != id);
 
             if (existingPromotion != null)
                 throw new CustomException(CustomExceptionType.IsAlreadyExists,
@@ -108,12 +108,11 @@ namespace Domain
             if (request.Banner != null)
                 imageBaseName = await _imageService.UploadImageAsync(request.Banner);
 
-            var promotion = UpdatePromotionDTO.ToPromotion(request, imageBaseName);
-
-            _context.Promotions.Add(promotion);
+            UpdatePromotionDTO.ToPromotion(request, imageBaseName, promotionById);
+            
             await _context.SaveChangesAsync();
 
-            var createdPromotion = await _context.Promotions.FindAsync(promotion.Id);
+            var createdPromotion = await _context.Promotions.FindAsync(id);
 
             if (createdPromotion == null)
                 throw new CustomException(CustomExceptionType.NotFound,
