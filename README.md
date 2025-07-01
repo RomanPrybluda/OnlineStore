@@ -6,7 +6,7 @@
 
 [Link to Software Requirements Specification](https://docs.google.com/document/d/1hcFULwdvsAFvCo67wSuyIMmszhERiu9VX_tDqdbu9A0/edit?tab=t.0#heading=h.37fyoutx2o50)
 
-[Site link](https://online-store-git-api-products-review-doboshdiana404s-projects.vercel.app)
+[Site link](https://sweet-online-store.vercel.app/)
 
 **Craft Sweets** is a RESTful API for an online sweets store, built with **ASP.NET Core 8.0**, **Entity Framework Core**, and **Identity**. The solution is structured with three main layers: `WebAPI`, `Domain`, and `DAL`.
 
